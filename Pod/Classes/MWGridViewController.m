@@ -178,6 +178,7 @@
     }else{
         MWGridCell * cell = (MWGridCell*)[collectionView cellForItemAtIndexPath:indexPath];
         [cell setIsSelected:!cell.selected];
+        [_browser setPhotoSelected:cell.selected atIndex:indexPath.row];
     }
 }
 
