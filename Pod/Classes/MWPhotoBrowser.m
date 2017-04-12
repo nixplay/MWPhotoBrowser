@@ -1594,9 +1594,11 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             
             [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
             [_gridController.collectionView reloadData];
+            _displaySelectionButtons = YES;
         }else{
             [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
             [_gridController.collectionView reloadData];
+            _displaySelectionButtons = NO;
         }
         return;
     }
@@ -1631,7 +1633,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             double delayInSeconds = 2.0;
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                if (self.activityViewController) {
+                if (self.activityViewController != NULL) {
                     [self showProgressHUDWithMessage:nil];
                 }
             });
