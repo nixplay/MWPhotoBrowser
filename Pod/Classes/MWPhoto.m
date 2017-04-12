@@ -52,7 +52,9 @@
 + (MWPhoto *)videoWithURL:(NSURL *)url {
     return [[MWPhoto alloc] initWithVideoURL:url];
 }
-
+- (NSString *)url{
+    return [self.photoURL absoluteString];
+}
 #pragma mark - Init
 
 - (id)init {
