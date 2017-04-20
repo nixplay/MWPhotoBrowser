@@ -1,19 +1,23 @@
 PODS:
   - DACircularProgress (2.3.1)
-  - Expecta (1.0.0)
-  - Expecta+Snapshots (1.3.4):
+  - Expecta (1.0.5)
+  - Expecta+Snapshots (2.0.0):
     - Expecta (~> 1.0)
-    - FBSnapshotTestCase (~> 1.8)
-  - FBSnapshotTestCase (1.8.1)
-  - MBProgressHUD (0.9.2)
+    - FBSnapshotTestCase/Core (~> 2.0.3)
+  - FBSnapshotTestCase (2.0.7):
+    - FBSnapshotTestCase/SwiftSupport (= 2.0.7)
+  - FBSnapshotTestCase/Core (2.0.7)
+  - FBSnapshotTestCase/SwiftSupport (2.0.7):
+    - FBSnapshotTestCase/Core
+  - MBProgressHUD (1.0.0)
   - MWPhotoBrowser (2.1.2):
     - DACircularProgress
     - MBProgressHUD
-    - SDWebImage
+    - SDWebImage (= 3.7.5)
   - SDWebImage (3.7.5):
     - SDWebImage/Core (= 3.7.5)
   - SDWebImage/Core (3.7.5)
-  - Specta (1.0.2)
+  - Specta (1.0.6)
 
 DEPENDENCIES:
   - Expecta
@@ -28,14 +32,14 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
-  Expecta: 32604574add2c46a36f8d2f716b6c5736eb75024
-  Expecta+Snapshots: ca15bfb57e7a0f78f86c7699c2c54ffacfa4ad2a
-  FBSnapshotTestCase: 3dc3899168747a0319c5278f5b3445c13a6532dd
-  MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
-  MWPhotoBrowser: e119eed9786d088e65b32d9a56f15c4708868eaf
+  Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
+  Expecta+Snapshots: 29b38dd695bc72a0ed2bea833937d78df41943ba
+  FBSnapshotTestCase: 7e85180d0d141a0cf472352edda7e80d7eaeb547
+  MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
+  MWPhotoBrowser: 478da88830dec3546389433496b9beebf773e5c4
   SDWebImage: 69c6303e3348fba97e03f65d65d4fbc26740f461
-  Specta: 9cec98310dca411f7c7ffd6943552b501622abfe
+  Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465
 
-PODFILE CHECKSUM: 532c28e054ad010107257cff279bca899dd4296c
+PODFILE CHECKSUM: 2bb4dba807ff316cafe1b2d257518c668d482c05
 
-COCOAPODS: 1.2.0
+COCOAPODS: 1.2.1

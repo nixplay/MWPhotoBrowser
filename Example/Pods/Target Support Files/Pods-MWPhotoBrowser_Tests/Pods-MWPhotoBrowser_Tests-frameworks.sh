@@ -87,6 +87,27 @@ strip_invalid_archs() {
   fi
 }
 
+
+if [[ "$CONFIGURATION" == "Debug" ]]; then
+  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress-iOS7.1/DACircularProgress.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD-iOS7.1/MBProgressHUD.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser-iOS7.1/MWPhotoBrowser.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage-iOS7.1/SDWebImage.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Expecta/Expecta.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Expecta+Snapshots/Expecta_Snapshots.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/FBSnapshotTestCase/FBSnapshotTestCase.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Specta/Specta.framework"
+fi
+if [[ "$CONFIGURATION" == "Release" ]]; then
+  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress-iOS7.1/DACircularProgress.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD-iOS7.1/MBProgressHUD.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser-iOS7.1/MWPhotoBrowser.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage-iOS7.1/SDWebImage.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Expecta/Expecta.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Expecta+Snapshots/Expecta_Snapshots.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/FBSnapshotTestCase/FBSnapshotTestCase.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Specta/Specta.framework"
+fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait
 fi
