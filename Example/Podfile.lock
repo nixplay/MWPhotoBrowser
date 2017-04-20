@@ -7,9 +7,9 @@ PODS:
   - FBSnapshotTestCase (1.8.1)
   - MBProgressHUD (0.9.2)
   - MWPhotoBrowser (2.1.2):
-    - DACircularProgress (~> 2.3)
-    - MBProgressHUD (~> 0.9)
-    - SDWebImage (!= 3.7.2, ~> 3.7)
+    - DACircularProgress
+    - MBProgressHUD
+    - SDWebImage
   - SDWebImage (3.7.5):
     - SDWebImage/Core (= 3.7.5)
   - SDWebImage/Core (3.7.5)
@@ -24,7 +24,7 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   MWPhotoBrowser:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
@@ -32,8 +32,10 @@ SPEC CHECKSUMS:
   Expecta+Snapshots: ca15bfb57e7a0f78f86c7699c2c54ffacfa4ad2a
   FBSnapshotTestCase: 3dc3899168747a0319c5278f5b3445c13a6532dd
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
-  MWPhotoBrowser: 5836d7aa041dc05a13de380c246826578adc5ea5
+  MWPhotoBrowser: e119eed9786d088e65b32d9a56f15c4708868eaf
   SDWebImage: 69c6303e3348fba97e03f65d65d4fbc26740f461
   Specta: 9cec98310dca411f7c7ffd6943552b501622abfe
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 532c28e054ad010107257cff279bca899dd4296c
+
+COCOAPODS: 1.2.0

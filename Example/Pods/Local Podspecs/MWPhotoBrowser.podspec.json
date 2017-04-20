@@ -18,7 +18,7 @@
   },
   "social_media_url": "https://twitter.com/mwaterfall",
   "source": {
-    "git": "https://github.com/mwaterfall/MWPhotoBrowser.git",
+    "git": "https://github.com/nixplay/MWPhotoBrowser.git",
     "tag": "2.1.2"
   },
   "platforms": {
@@ -40,14 +40,13 @@
   "weak_frameworks": "Photos",
   "dependencies": {
     "MBProgressHUD": [
-      "~> 0.9"
+
     ],
     "DACircularProgress": [
-      "~> 2.3"
+
     ],
     "SDWebImage": [
-      "~> 3.7",
-      "!= 3.7.2"
+
     ]
   }
 }
