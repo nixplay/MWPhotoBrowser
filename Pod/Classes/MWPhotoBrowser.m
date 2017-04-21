@@ -1374,7 +1374,11 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (void)hideGrid {
     
     if (!_gridController) return;
-    
+    if([self.delegate respondsToSelector:@selector(photoBrowser:showHideGridController:)]){
+        if([self.delegate photoBrowser:self showHideGridController:_gridController]){
+            
+        }
+    }
     // Remember previous content offset
     _currentGridContentOffset = _gridController.collectionView.contentOffset;
     
@@ -1644,7 +1648,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     UIBarButtonItem * deleteBarButton = [[UIBarButtonItem alloc] initWithImage:[ self imageFromSystemBarButton:UIBarButtonSystemItemTrash]
                                                                          style:UIBarButtonItemStylePlain target:self action:@selector(deletePhoto:)];
     
-    UIBarButtonItem * sendtoBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Send To" style:UIBarButtonItemStylePlain target:self action:@selector(sendTo:)];
+    UIBarButtonItem * sendtoBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(add:)];
     
     
     [items addObject:deleteBarButton];
@@ -1665,7 +1669,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
 }
 
--(void) sendTo : (id)sender{
+-(void) add : (id)sender{
     
 }
 
