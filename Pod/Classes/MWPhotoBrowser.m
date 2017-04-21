@@ -211,19 +211,20 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         _doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"╳", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
         // Set appearance
         [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-        [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
+        [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsCompact];
         [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-        [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
+        [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsCompactPrompt];
         [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
         [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
         self.navigationItem.leftBarButtonItem = _doneButton;
         
-        _selectButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Select", nil) style:UIBarButtonItemStylePlain target:self action:@selector(selectButtonPressed:)];
+        NSString* selectionString =  _displaySelectionButtons ?  NSLocalizedString(@"Cancel", nil) : NSLocalizedString(@"Select", nil);
+        _selectButton = [[UIBarButtonItem alloc] initWithTitle:selectionString style:UIBarButtonItemStylePlain target:self action:@selector(selectButtonPressed:)];
         // Set appearance
         [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
+        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsCompact];
         [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
+        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsCompactPrompt];
         [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
         [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
         self.navigationItem.rightBarButtonItem = _selectButton;
@@ -1591,26 +1592,44 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (void)selectButtonPressed:(id)sender {
+    
+    if(!_displaySelectionButtons){
+        _displaySelectionButtons = YES;
+        [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
+        _displaySelectionButtons = YES;
+        [self createSelectionModeBarButton];
+    }else{
+        [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
+        _displaySelectionButtons = NO;
+        if(_toolbar.superview != nil){
+            [_toolbar removeFromSuperview];
+        }
+        
+    }
     if (self.enableGrid && _gridController) {
-        _gridController.selectionMode = !_gridController.selectionMode;
+        _gridController.selectionMode = _displaySelectionButtons;
         if(_gridController.selectionMode){
             
-            [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
-            [_gridController.collectionView reloadData];
-            _displaySelectionButtons = YES;
             
-            [self createSelectionModeBarButton];
+            [_gridController.collectionView reloadData];
+            
+//            [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
+//            _displaySelectionButtons = YES;
+//            [self createSelectionModeBarButton];
             
         
         }else{
-            [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
+//            [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
             [_gridController.collectionView reloadData];
-            _displaySelectionButtons = NO;
-            
-            [_toolbar removeFromSuperview];
+//            _displaySelectionButtons = NO;
+//            if(_toolbar.superview != nil){
+//                [_toolbar removeFromSuperview];
+//            }
             
         }
         return;
+    }else{
+        [self updateVisiblePageStates];
     }
 
 }
