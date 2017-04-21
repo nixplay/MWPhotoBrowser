@@ -208,7 +208,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Navigation buttons
     if ([self.navigationController.viewControllers objectAtIndex:0] == self) {
         // We're first on stack so show done button
-        _doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
+        _doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"╳", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
         // Set appearance
         [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
         [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
@@ -245,57 +245,60 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
 
     // Toolbar items
-    BOOL hasItems = NO;
-    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
-    fixedSpace.width = 32; // To balance action button
-    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-
-    // Left button - Grid
-    if (_enableGrid) {
-        hasItems = YES;
-        [items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/UIBarButtonItemGrid" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
-    } else {
-        [items addObject:fixedSpace];
-    }
-
-    // Middle - Nav
-    if (_previousButton && _nextButton && numberOfPhotos > 1) {
-        hasItems = YES;
-        [items addObject:flexSpace];
-        [items addObject:_previousButton];
-        [items addObject:flexSpace];
-        [items addObject:_nextButton];
-        [items addObject:flexSpace];
-    } else {
-        [items addObject:flexSpace];
-    }
-
-    // Right - Action
-    if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
-        [items addObject:_actionButton];
-    } else {
-        // We're not showing the toolbar so try and show in top right
-        if (_actionButton)
-            self.navigationItem.rightBarButtonItem = _actionButton;
-        [items addObject:fixedSpace];
-    }
-
-    // Toolbar visibility
-    [_toolbar setItems:items];
-    BOOL hideToolbar = YES;
-    for (UIBarButtonItem* item in _toolbar.items) {
-        if (item != fixedSpace && item != flexSpace) {
-            hideToolbar = NO;
-            break;
+    if(_displaySelectionButtons){
+       [self createSelectionModeBarButton];
+    }else{
+        BOOL hasItems = NO;
+        UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
+        fixedSpace.width = 32; // To balance action button
+        UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+        NSMutableArray *items = [[NSMutableArray alloc] init];
+        
+        // Left button - Grid
+        if (_enableGrid) {
+            hasItems = YES;
+            [items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/UIBarButtonItemGrid" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
+        } else {
+            [items addObject:fixedSpace];
+        }
+        
+        // Middle - Nav
+        if (_previousButton && _nextButton && numberOfPhotos > 1) {
+            hasItems = YES;
+            [items addObject:flexSpace];
+            [items addObject:_previousButton];
+            [items addObject:flexSpace];
+            [items addObject:_nextButton];
+            [items addObject:flexSpace];
+        } else {
+            [items addObject:flexSpace];
+        }
+        
+        // Right - Action
+        if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
+            [items addObject:_actionButton];
+        } else {
+            // We're not showing the toolbar so try and show in top right
+            if (_actionButton)
+                self.navigationItem.rightBarButtonItem = _actionButton;
+            [items addObject:fixedSpace];
+        }
+        
+        // Toolbar visibility
+        [_toolbar setItems:items];
+        BOOL hideToolbar = YES;
+        for (UIBarButtonItem* item in _toolbar.items) {
+            if (item != fixedSpace && item != flexSpace) {
+                hideToolbar = NO;
+                break;
+            }
+        }
+        if (hideToolbar) {
+            [_toolbar removeFromSuperview];
+        } else {
+            [self.view addSubview:_toolbar];
         }
     }
-    if (hideToolbar) {
-        [_toolbar removeFromSuperview];
-    } else {
-        [self.view addSubview:_toolbar];
-    }
-    
     // Update nav
 	[self updateNavigation];
     
@@ -1595,16 +1598,88 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
             [_gridController.collectionView reloadData];
             _displaySelectionButtons = YES;
+            
+            [self createSelectionModeBarButton];
+            
+        
         }else{
             [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
             [_gridController.collectionView reloadData];
             _displaySelectionButtons = NO;
+            
+            [_toolbar removeFromSuperview];
+            
         }
         return;
     }
 
 }
 
+-(void) createSelectionModeBarButton{
+    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
+    fixedSpace.width = 32; // To balance action button
+    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+    
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    
+    UIBarButtonItem * deleteBarButton = [[UIBarButtonItem alloc] initWithImage:[ self imageFromSystemBarButton:UIBarButtonSystemItemTrash]
+                                                                         style:UIBarButtonItemStylePlain target:self action:@selector(deletePhoto:)];
+    
+    UIBarButtonItem * sendtoBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Send To" style:UIBarButtonItemStylePlain target:self action:@selector(sendTo:)];
+    
+    
+    [items addObject:deleteBarButton];
+    [items addObject:flexSpace];
+    [items addObject:sendtoBarButton];
+    [items addObject:flexSpace];
+    // Right - Action
+    _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+    if (_actionButton ) {
+        [items addObject:_actionButton];
+    }
+    [_toolbar setItems:items];
+    
+    [self.view addSubview:_toolbar];
+}
+
+-(void) deletePhoto : (id)sender{
+    
+}
+
+-(void) sendTo : (id)sender{
+    
+}
+
+- (UIImage *)imageFromSystemBarButton:(UIBarButtonSystemItem)systemItem {
+    // Holding onto the oldItem (if any) to set it back later
+    // could use left or right, doesn't matter
+    UIBarButtonItem *oldItem = self.navigationItem.rightBarButtonItem;
+    
+    UIBarButtonItem *tempItem = [[UIBarButtonItem alloc]
+                                 initWithBarButtonSystemItem:systemItem
+                                 target:nil
+                                 action:nil];
+    
+    // Setting as our right bar button item so we can traverse its subviews
+    self.navigationItem.rightBarButtonItem = tempItem;
+    
+    // Don't know whether this is considered as PRIVATE API or not
+    UIView *itemView = (UIView *)[self.navigationItem.rightBarButtonItem performSelector:@selector(view)];
+    
+    UIImage *image = nil;
+    // Traversing the subviews to find the ImageView and getting its image
+    for (UIView *subView in itemView.subviews) {
+        if ([subView isKindOfClass:[UIImageView class]]) {
+            image = ((UIImageView *)subView).image;
+            break;
+        }
+    }
+    
+    // Setting our oldItem back since we have the image now
+    self.navigationItem.rightBarButtonItem = oldItem;
+    
+    return image;
+}
 
 #pragma mark - Actions
 
