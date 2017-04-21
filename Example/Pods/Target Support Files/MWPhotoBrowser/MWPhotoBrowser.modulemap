@@ -1,5 +1,5 @@
 framework module MWPhotoBrowser {
-  umbrella header "MWPhotoBrowser-iOS7.0-umbrella.h"
+  umbrella header "MWPhotoBrowser-umbrella.h"
 
   export *
   module * { export * }

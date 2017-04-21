@@ -89,20 +89,20 @@ strip_invalid_archs() {
 
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress-iOS7.1/DACircularProgress.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD-iOS7.1/MBProgressHUD.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser-iOS7.1/MWPhotoBrowser.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage-iOS7.1/SDWebImage.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress/DACircularProgress.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD/MBProgressHUD.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser/MWPhotoBrowser.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage/SDWebImage.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Expecta/Expecta.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Expecta+Snapshots/Expecta_Snapshots.framework"
   install_framework "$BUILT_PRODUCTS_DIR/FBSnapshotTestCase/FBSnapshotTestCase.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Specta/Specta.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress-iOS7.1/DACircularProgress.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD-iOS7.1/MBProgressHUD.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser-iOS7.1/MWPhotoBrowser.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage-iOS7.1/SDWebImage.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress/DACircularProgress.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD/MBProgressHUD.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser/MWPhotoBrowser.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage/SDWebImage.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Expecta/Expecta.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Expecta+Snapshots/Expecta_Snapshots.framework"
   install_framework "$BUILT_PRODUCTS_DIR/FBSnapshotTestCase/FBSnapshotTestCase.framework"

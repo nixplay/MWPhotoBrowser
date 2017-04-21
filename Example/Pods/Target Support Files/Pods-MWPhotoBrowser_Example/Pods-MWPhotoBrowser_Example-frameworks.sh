@@ -89,16 +89,16 @@ strip_invalid_archs() {
 
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress-iOS7.0/DACircularProgress.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD-iOS7.0/MBProgressHUD.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser-iOS7.0/MWPhotoBrowser.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage-iOS7.0/SDWebImage.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress/DACircularProgress.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD/MBProgressHUD.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser/MWPhotoBrowser.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage/SDWebImage.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress-iOS7.0/DACircularProgress.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD-iOS7.0/MBProgressHUD.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser-iOS7.0/MWPhotoBrowser.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage-iOS7.0/SDWebImage.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/DACircularProgress/DACircularProgress.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MBProgressHUD/MBProgressHUD.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/MWPhotoBrowser/MWPhotoBrowser.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/SDWebImage/SDWebImage.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait
