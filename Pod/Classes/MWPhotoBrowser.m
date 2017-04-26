@@ -1328,9 +1328,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
     // Clear video
     [self clearCurrentVideo];
-    if(_selectButton != NULL){
-        self.navigationItem.rightBarButtonItem = _selectButton;
-    }
+    
     // Init grid controller
     _gridController = [[MWGridViewController alloc] init];
     _gridController.initialContentOffset = _currentGridContentOffset;
@@ -1385,9 +1383,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
     // Remember previous content offset
     _currentGridContentOffset = _gridController.collectionView.contentOffset;
-    if(_selectButton != NULL){
-        self.navigationItem.rightBarButtonItem = nil;
-    }
+    
     // Restore action button if it was removed
     if (_gridPreviousRightNavItem == _actionButton && _actionButton) {
         [self.navigationItem setRightBarButtonItem:_gridPreviousRightNavItem animated:YES];
