@@ -1333,6 +1333,11 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
     if (_gridController) return;
     
+    if([self.delegate respondsToSelector:@selector(photoBrowser:showGridController:)]){
+        if([self.delegate photoBrowser:self showGridController:_gridController]){
+            
+        }
+    }
     // Clear video
     [self clearCurrentVideo];
     
@@ -1383,8 +1388,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (void)hideGrid {
     
     if (!_gridController) return;
-    if([self.delegate respondsToSelector:@selector(photoBrowser:showHideGridController:)]){
-        if([self.delegate photoBrowser:self showHideGridController:_gridController]){
+    if([self.delegate respondsToSelector:@selector(photoBrowser:hideGridController:)]){
+        if([self.delegate photoBrowser:self hideGridController:_gridController]){
             
         }
     }
