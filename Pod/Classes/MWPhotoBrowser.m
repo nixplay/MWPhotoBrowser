@@ -1106,6 +1106,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 	// Title
     NSUInteger numberOfPhotos = [self numberOfPhotos];
     if (_gridController) {
+        if([self.delegate respondsToSelector:@selector(photoBrowserSelectionMode)]){
+            _gridController.selectionMode = [self.delegate photoBrowserSelectionMode];
+        }
         if (_gridController.selectionMode) {
             self.title = NSLocalizedString(@"Select Photos", nil);
         } else {
