@@ -1108,6 +1108,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if (_gridController) {
         if([self.delegate respondsToSelector:@selector(photoBrowserSelectionMode)]){
             _gridController.selectionMode = [self.delegate photoBrowserSelectionMode];
+            [_gridController.collectionView reloadData];
         }
         if (_gridController.selectionMode) {
             self.title = NSLocalizedString(@"Select Photos", nil);
