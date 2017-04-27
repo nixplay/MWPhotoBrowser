@@ -460,14 +460,19 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (void)setNavBarAppearance:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
-    UINavigationBar *navBar = self.navigationController.navigationBar;
-    navBar.tintColor = [UIColor whiteColor];
-    navBar.barTintColor = nil;
-    navBar.shadowImage = nil;
-    navBar.translucent = YES;
-    navBar.barStyle = UIBarStyleBlackTranslucent;
-    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
-    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
+    
+    if([self.delegate respondsToSelector:@selector(photoBrowser:setNavBarAppearance:)]){
+        [self.delegate photoBrowser:self setNavBarAppearance:self.navigationController.navigationBar];
+    }else{
+        UINavigationBar *navBar = self.navigationController.navigationBar;
+        navBar.tintColor = [UIColor whiteColor];
+        navBar.barTintColor = nil;
+        navBar.shadowImage = nil;
+        navBar.translucent = YES;
+        navBar.barStyle = UIBarStyleBlackTranslucent;
+        [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+        [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
+    }
 }
 
 - (void)storePreviousNavBarAppearance {
