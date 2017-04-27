@@ -229,7 +229,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsCompactPrompt];
         [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
         [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
-        self.navigationItem.rightBarButtonItem = _selectButton;
+        if(self.navigationItem.rightBarButtonItem == NULL){
+            self.navigationItem.rightBarButtonItem = _selectButton;
+        }
         
     } else {
         // We're not first so show back button
