@@ -298,6 +298,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                 break;
             }
         }
+        if([self.delegate respondsToSelector:@selector(photoBrowser:hideToolbar:)]){
+            hideToolbar = [self.delegate photoBrowser:self hideToolbar:hideToolbar];
+        }
         if (hideToolbar) {
             [_toolbar removeFromSuperview];
         } else {
