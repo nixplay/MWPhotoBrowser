@@ -1674,9 +1674,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     [items addObject:sendtoBarButton];
     [items addObject:flexSpace];
     // Right - Action
-    _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
-    if (_actionButton ) {
-        [items addObject:_actionButton];
+    UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+    if (actionButton ) {
+        [items addObject:actionButton];
     }
     [_toolbar setItems:items];
     
