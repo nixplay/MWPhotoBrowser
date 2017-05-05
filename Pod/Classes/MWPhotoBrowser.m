@@ -1661,7 +1661,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 -(void) createSelectionModeBarButton{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
-        NSMutableArray *items = [self.delegate photoBrowser:self hideToolbar:_toolbar];
+        NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
         [_toolbar setItems:items];
     }else{
         UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
