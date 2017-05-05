@@ -1660,30 +1660,35 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 -(void) createSelectionModeBarButton{
-    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
-    fixedSpace.width = 32; // To balance action button
-    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
-    
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    
-    UIBarButtonItem * deleteBarButton = [[UIBarButtonItem alloc] initWithImage:[ self imageFromSystemBarButton:UIBarButtonSystemItemTrash]
-                                                                         style:UIBarButtonItemStylePlain target:self action:@selector(deletePhoto:)];
-    
-    UIBarButtonItem * sendtoBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(add:)];
-    
-    
-    [items addObject:deleteBarButton];
-    [items addObject:flexSpace];
-    [items addObject:sendtoBarButton];
-    [items addObject:flexSpace];
-    // Right - Action
-    UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
-    if (actionButton ) {
-        [items addObject:actionButton];
+    if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
+        NSMutableArray *items = [self.delegate photoBrowser:self hideToolbar:_toolbar];
+        [_toolbar setItems:items];
+    }else{
+        UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
+        fixedSpace.width = 32; // To balance action button
+        UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+        
+        NSMutableArray *items = [[NSMutableArray alloc] init];
+        
+        UIBarButtonItem * deleteBarButton = [[UIBarButtonItem alloc] initWithImage:[ self imageFromSystemBarButton:UIBarButtonSystemItemTrash]
+                                                                             style:UIBarButtonItemStylePlain target:self action:@selector(deletePhoto:)];
+        
+        UIBarButtonItem * sendtoBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(add:)];
+        
+        
+        [items addObject:deleteBarButton];
+        [items addObject:flexSpace];
+        [items addObject:sendtoBarButton];
+        [items addObject:flexSpace];
+        // Right - Action
+        UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+        if (actionButton ) {
+            [items addObject:actionButton];
+        }
+        [_toolbar setItems:items];
     }
-    [_toolbar setItems:items];
-    
     [self.view addSubview:_toolbar];
+        
 }
 
 -(void) deletePhoto : (id)sender{
