@@ -1340,11 +1340,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
     if (_gridController) return;
     
-    if([self.delegate respondsToSelector:@selector(photoBrowser:showGridController:)]){
-        if([self.delegate photoBrowser:self showGridController:_gridController]){
-            
-        }
-    }
+    
     // Clear video
     [self clearCurrentVideo];
     
@@ -1390,16 +1386,17 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [_gridController didMoveToParentViewController:self];
     }];
     
+    if([self.delegate respondsToSelector:@selector(photoBrowser:showGridController:)]){
+        if([self.delegate photoBrowser:self showGridController:_gridController]){
+            
+        }
+    }
 }
 
 - (void)hideGrid {
     
     if (!_gridController) return;
-    if([self.delegate respondsToSelector:@selector(photoBrowser:hideGridController:)]){
-        if([self.delegate photoBrowser:self hideGridController:_gridController]){
-            
-        }
-    }
+    
     // Remember previous content offset
     _currentGridContentOffset = _gridController.collectionView.contentOffset;
     
@@ -1431,7 +1428,11 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [tmpGridController removeFromParentViewController];
         [self setControlsHidden:NO animated:YES permanent:NO]; // retrigger timer
     }];
-
+    if([self.delegate respondsToSelector:@selector(photoBrowser:hideGridController:)]){
+        if([self.delegate photoBrowser:self hideGridController:_gridController]){
+            
+        }
+    }
 }
 
 #pragma mark - Control Hiding / Showing
