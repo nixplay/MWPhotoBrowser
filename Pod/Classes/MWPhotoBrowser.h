@@ -77,4 +77,6 @@
 - (void)showNextPhotoAnimated:(BOOL)animated;
 - (void)showPreviousPhotoAnimated:(BOOL)animated;
 
+-(void)showToolBar;
+-(void)hideToolBar;
 @end

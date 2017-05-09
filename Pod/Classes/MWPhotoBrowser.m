@@ -1388,11 +1388,21 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
     if([self.delegate respondsToSelector:@selector(photoBrowser:showGridController:)]){
         if([self.delegate photoBrowser:self showGridController:_gridController]){
-            
         }
     }
 }
-
+-(void)showToolBar{
+    if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
+        
+        [_toolbar removeFromSuperview];
+        NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
+        [_toolbar setItems:items];
+        [self.view addSubview:_toolbar];
+    }
+}
+-(void)hideToolBar{
+    [_toolbar removeFromSuperview];
+}
 - (void)hideGrid {
     
     if (!_gridController) return;
