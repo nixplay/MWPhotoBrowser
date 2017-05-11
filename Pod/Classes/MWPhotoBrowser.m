@@ -220,18 +220,18 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             self.navigationItem.leftBarButtonItem = _doneButton;
         }
         
-        NSString* selectionString =  _displaySelectionButtons ?  NSLocalizedString(@"Cancel", nil) : NSLocalizedString(@"Select", nil);
-        _selectButton = [[UIBarButtonItem alloc] initWithTitle:selectionString style:UIBarButtonItemStylePlain target:self action:@selector(selectButtonPressed:)];
-        // Set appearance
-        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsCompact];
-        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsCompactPrompt];
-        [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
-        [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
-        if(self.navigationItem.rightBarButtonItem == NULL){
-            self.navigationItem.rightBarButtonItem = _selectButton;
-        }
+//        NSString* selectionString =  _displaySelectionButtons ?  NSLocalizedString(@"Cancel", nil) : NSLocalizedString(@"Select", nil);
+//        _selectButton = [[UIBarButtonItem alloc] initWithTitle:selectionString style:UIBarButtonItemStylePlain target:self action:@selector(selectButtonPressed:)];
+//        // Set appearance
+//        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+//        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsCompact];
+//        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+//        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsCompactPrompt];
+//        [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
+//        [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
+//        if(self.navigationItem.rightBarButtonItem == NULL){
+//            self.navigationItem.rightBarButtonItem = _selectButton;
+//        }
         
     } else {
         // We're not first so show back button
@@ -1627,48 +1627,48 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
 }
 
-- (void)selectButtonPressed:(id)sender {
-    
-    if(!_displaySelectionButtons){
-        _displaySelectionButtons = YES;
-        [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
-    
-        [self createSelectionModeBarButton];
-    }else{
-        [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
-        _displaySelectionButtons = NO;
-        if(_toolbar.superview != nil){
-            [_toolbar removeFromSuperview];
-        }
-        
-    }
-    if (_gridController) {
-        _gridController.selectionMode = _displaySelectionButtons;
-        if(_gridController.selectionMode){
-            
-            
-            [_gridController.collectionView reloadData];
-            
-//            [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
-//            _displaySelectionButtons = YES;
-//            [self createSelectionModeBarButton];
-            
-        
-        }else{
-//            [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
-            [_gridController.collectionView reloadData];
-//            _displaySelectionButtons = NO;
-//            if(_toolbar.superview != nil){
-//                [_toolbar removeFromSuperview];
-//            }
-            
-        }
-        return;
-    }else{
-        [self updateVisiblePageStates];
-    }
-
-}
+//- (void)selectButtonPressed:(id)sender {
+//    
+//    if(!_displaySelectionButtons){
+//        _displaySelectionButtons = YES;
+//        [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
+//    
+//        [self createSelectionModeBarButton];
+//    }else{
+//        [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
+//        _displaySelectionButtons = NO;
+//        if(_toolbar.superview != nil){
+//            [_toolbar removeFromSuperview];
+//        }
+//        
+//    }
+//    if (_gridController) {
+//        _gridController.selectionMode = _displaySelectionButtons;
+//        if(_gridController.selectionMode){
+//            
+//            
+//            [_gridController.collectionView reloadData];
+//            
+////            [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
+////            _displaySelectionButtons = YES;
+////            [self createSelectionModeBarButton];
+//            
+//        
+//        }else{
+////            [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
+//            [_gridController.collectionView reloadData];
+////            _displaySelectionButtons = NO;
+////            if(_toolbar.superview != nil){
+////                [_toolbar removeFromSuperview];
+////            }
+//            
+//        }
+//        return;
+//    }else{
+//        [self updateVisiblePageStates];
+//    }
+//
+//}
 
 -(void) createSelectionModeBarButton{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){

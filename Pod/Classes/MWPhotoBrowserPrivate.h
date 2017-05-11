@@ -34,7 +34,7 @@
 	// Navigation & controls
 	UIToolbar *_toolbar;
 	NSTimer *_controlVisibilityTimer;
-	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton, *_doneButton, *_selectButton;
+	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton, *_doneButton;
     MBProgressHUD *_progressHUD;
     
     // Grid
