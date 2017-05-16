@@ -1400,8 +1400,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 -(void)showToolBar{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
-        
-        [_toolbar removeFromSuperview];
+        if([_toolbar superview ] != nil){
+            [_toolbar removeFromSuperview];
+        }
         NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
         [_toolbar setItems:items];
         [self.view addSubview:_toolbar];
