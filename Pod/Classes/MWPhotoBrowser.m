@@ -1409,7 +1409,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
 }
 -(void)hideToolBar{
-    [_toolbar removeFromSuperview];
+    if(_toolbar.superview != nil){
+        [_toolbar removeFromSuperview];
+    }
 }
 - (void)hideGrid {
     
