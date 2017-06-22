@@ -26,7 +26,7 @@
     if ((self = [super initWithCollectionViewLayout:[UICollectionViewFlowLayout new]])) {
         
         // Defaults
-        _columns = 3, _columnsL = 4;
+        _columns = 4, _columnsL = 4;
         _margin = 0, _gutter = 1;
         _marginL = 0, _gutterL = 1;
         
