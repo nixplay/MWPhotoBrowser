@@ -165,7 +165,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _toolbar.barTintColor = nil;
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
-    _toolbar.barStyle = UIBarStyleBlackTranslucent;
+    _toolbar.barStyle = UIBarStyleDefault;
     _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     
     // Toolbar Items
@@ -255,7 +255,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }else{
         if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
             [_toolbar setItems:[self.delegate photoBrowser:self buildToolbarItems:_toolbar]];
-                [self.view addSubview:_toolbar];
+            [self.view addSubview:_toolbar];
         }else{
             BOOL hasItems = NO;
             UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
@@ -289,7 +289,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             } else {
                 // We're not showing the toolbar so try and show in top right
                 if (_actionButton)
-                    self.navigationItem.rightBarButtonItem = _actionButton;
+                self.navigationItem.rightBarButtonItem = _actionButton;
                 [items addObject:fixedSpace];
             }
             
@@ -479,7 +479,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         navBar.barTintColor = nil;
         navBar.shadowImage = nil;
         navBar.translucent = YES;
-        navBar.barStyle = UIBarStyleBlackTranslucent;
+        navBar.barStyle = UIBarStyleDefault;
         [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
         [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
     }
@@ -823,7 +823,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
     [_visiblePages minusSet:_recycledPages];
     while (_recycledPages.count > 2) // Only keep 2 recycled pages
-        [_recycledPages removeObject:[_recycledPages anyObject]];
+    [_recycledPages removeObject:[_recycledPages anyObject]];
     
     // Add missing pages
     for (NSUInteger index = (NSUInteger)iFirstIndex; index <= (NSUInteger)iLastIndex; index++) {
@@ -897,7 +897,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (BOOL)isDisplayingPageForIndex:(NSUInteger)index {
     for (MWZoomingScrollView *page in _visiblePages)
-        if (page.index == index) return YES;
+    if (page.index == index) return YES;
     return NO;
 }
 
@@ -986,7 +986,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Notify delegate
     if (index != _previousPageIndex) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:)])
-            [_delegate photoBrowser:self didDisplayPhotoAtIndex:index];
+        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index];
         _previousPageIndex = index;
     }
     
@@ -1455,7 +1455,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
     // Force visible
     if (![self numberOfPhotos] || _gridController || _alwaysShowControls)
-        hidden = NO;
+    hidden = NO;
     
     // Cancel any timers
     [self cancelControlHiding];
@@ -1594,13 +1594,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         index = 0;
     } else {
         if (index >= photoCount)
-            index = [self numberOfPhotos]-1;
+        index = [self numberOfPhotos]-1;
     }
     _currentPageIndex = index;
     if ([self isViewLoaded]) {
         [self jumpToPageAtIndex:index animated:NO];
         if (!_viewIsActive)
-            [self tilePages]; // Force tiling if view is not visible
+        [self tilePages]; // Force tiling if view is not visible
     }
 }
 
@@ -1675,7 +1675,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 -(void) createSelectionModeBarButton{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
         NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
-        [_toolbar setItems:items];
+        if([items count]>0){
+            [_toolbar setItems:items];
+            [self.view addSubview:_toolbar];
+        }
     }else{
         UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
         fixedSpace.width = 32; // To balance action button
@@ -1699,8 +1702,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             [items addObject:actionButton];
         }
         [_toolbar setItems:items];
+        [self.view addSubview:_toolbar];
     }
-    [self.view addSubview:_toolbar];
+    
     
 }
 
