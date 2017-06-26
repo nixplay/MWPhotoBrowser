@@ -6,13 +6,13 @@
 //
 //
 
-#import "CustomeViewController.h"
+#import "CustomViewController.h"
 
-@interface CustomeViewController ()
+@interface CustomViewController ()
 
 @end
 
-@implementation CustomeViewController
+@implementation CustomViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
