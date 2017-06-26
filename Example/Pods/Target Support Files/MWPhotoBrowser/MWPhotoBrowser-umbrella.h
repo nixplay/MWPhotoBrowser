@@ -10,6 +10,7 @@
 #endif
 #endif
 
+#import "CustomViewController.h"
 #import "MWCaptionView.h"
 #import "MWCommon.h"
 #import "MWGridCell.h"
