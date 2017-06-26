@@ -241,8 +241,12 @@
 		E233F5CF4BF16CFB539804C4E995C355 /* EXPMatchers+beLessThan.h in Headers */ = {isa = PBXBuildFile; fileRef = BD6AC3586C92B1C1B3A230A27256C44C /* EXPMatchers+beLessThan.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E31D351F1623FEA6E313D26EBFF7B53D /* SDWebImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BE0993B11D2FB05D9A1CE71ECD7E5EBD /* SDWebImageManager.m */; };
 		E3355DB3F63F6FE79FD8DD6188B0B3A4 /* EXPMatchers+contain.h in Headers */ = {isa = PBXBuildFile; fileRef = 25D05908208B1C850BD4599CA9A15878 /* EXPMatchers+contain.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E3551C6D1EFD1BC60027F454 /* PortraitNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3551C6B1EFD1BC60027F454 /* PortraitNavigationController.m */; };
-		E3551C6E1EFD1BC60027F454 /* PortraitNavigationController.h in Headers */ = {isa = PBXBuildFile; fileRef = E3551C6C1EFD1BC60027F454 /* PortraitNavigationController.h */; };
+		E361B4101F00947600AD5050 /* CustomeViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E361B40E1F00947600AD5050 /* CustomeViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E361B4111F00947600AD5050 /* CustomeViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E361B40E1F00947600AD5050 /* CustomeViewController.h */; };
+		E361B4121F00947600AD5050 /* CustomeViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E361B40E1F00947600AD5050 /* CustomeViewController.h */; };
+		E361B4131F00947600AD5050 /* CustomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E361B40F1F00947600AD5050 /* CustomeViewController.m */; };
+		E361B4141F00947600AD5050 /* CustomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E361B40F1F00947600AD5050 /* CustomeViewController.m */; };
+		E361B4151F00947600AD5050 /* CustomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E361B40F1F00947600AD5050 /* CustomeViewController.m */; };
 		E53C32AD234F4F0ABA8138FDFB9988E0 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7185572D03AB44DDAF2829EBB3BF3F2F /* AssetsLibrary.framework */; };
 		E61E28B50602F353D95914765667969F /* EXPMatcherHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = EF7DF26E419A2B6172DB415BE639A715 /* EXPMatcherHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E6D59CAA2A6E134A4643254406ED11F2 /* EXPMatchers+equal.m in Sources */ = {isa = PBXBuildFile; fileRef = D4D267E16EA71E32141E361E2EC68288 /* EXPMatchers+equal.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -682,8 +686,8 @@
 		E1EC5D184A4723F71F9B2A90D0AB7C30 /* Pods-MWPhotoBrowser_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MWPhotoBrowser_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
 		E22EFE9EF5732ADCCA31872D3636792E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		E345E4853DB082C1DE11E60143C31F07 /* UIBarButtonItemGrid@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "UIBarButtonItemGrid@2x.png"; sourceTree = "<group>"; };
-		E3551C6B1EFD1BC60027F454 /* PortraitNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PortraitNavigationController.m; sourceTree = "<group>"; };
-		E3551C6C1EFD1BC60027F454 /* PortraitNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PortraitNavigationController.h; sourceTree = "<group>"; };
+		E361B40E1F00947600AD5050 /* CustomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomeViewController.h; sourceTree = "<group>"; };
+		E361B40F1F00947600AD5050 /* CustomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomeViewController.m; sourceTree = "<group>"; };
 		E370CD6BB7B4232C2AD20D1C7331F24A /* UIImage+MWPhotoBrowser.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MWPhotoBrowser.m"; sourceTree = "<group>"; };
 		E57960341D745BC57C9E6318C645FF9D /* EXPMatchers+beNil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "EXPMatchers+beNil.h"; path = "Expecta/Matchers/EXPMatchers+beNil.h"; sourceTree = "<group>"; };
 		E5D308582103A2B045845F926457CBB3 /* Pods-MWPhotoBrowser_Tests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MWPhotoBrowser_Tests-dummy.m"; sourceTree = "<group>"; };
@@ -1033,8 +1037,6 @@
 			isa = PBXGroup;
 			children = (
 				2AD8E99CD3E3120F4BD3976EB5213AE0 /* MWCaptionView.h */,
-				E3551C6B1EFD1BC60027F454 /* PortraitNavigationController.m */,
-				E3551C6C1EFD1BC60027F454 /* PortraitNavigationController.h */,
 				04696074160E765EC47EC802E1B268F7 /* MWCaptionView.m */,
 				F4202ECE4111DA3F7D39199C85FCC978 /* MWCommon.h */,
 				9356A0A666A40BFBD13206F65C0291EE /* MWGridCell.h */,
@@ -1055,6 +1057,8 @@
 				5C21C7D06F30C14F4C7BF13BFDA9701E /* MWZoomingScrollView.m */,
 				E5EC0633EC3E8816DFBD3E82AA5AABF0 /* UIImage+MWPhotoBrowser.h */,
 				E370CD6BB7B4232C2AD20D1C7331F24A /* UIImage+MWPhotoBrowser.m */,
+				E361B40E1F00947600AD5050 /* CustomeViewController.h */,
+				E361B40F1F00947600AD5050 /* CustomeViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1423,7 +1427,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0DCAD35245EB537FFCDCA0953C6A3C1 /* DACircularProgress-umbrella.h in Headers */,
-				E3551C6E1EFD1BC60027F454 /* PortraitNavigationController.h in Headers */,
 				345A3F8FD666C6F70A7BA48134093C10 /* DACircularProgressView.h in Headers */,
 				8E885347ED4E974636918548411FAC73 /* DALabeledCircularProgressView.h in Headers */,
 			);
@@ -1456,6 +1459,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E361B4111F00947600AD5050 /* CustomeViewController.h in Headers */,
 				C5AFB3D572FA23F39C3F650E7D69A2DB /* Pods-MWPhotoBrowser_Example-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1464,6 +1468,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E361B4121F00947600AD5050 /* CustomeViewController.h in Headers */,
 				14D8987480667E957371118AAACFB254 /* Pods-MWPhotoBrowser_Tests-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1534,6 +1539,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E361B4101F00947600AD5050 /* CustomeViewController.h in Headers */,
 				B32B474EE82ECAB16EFAA1D536975DDD /* MWCaptionView.h in Headers */,
 				59FEC84FC127D810237296FF06C13F13 /* MWCommon.h in Headers */,
 				593809C5CE26CA5D27D8C2FF436CDA8A /* MWGridCell.h in Headers */,
@@ -1890,7 +1896,6 @@
 			files = (
 				8A551FDC7BFD61BAE67B6AA50F7F0A88 /* DACircularProgress-dummy.m in Sources */,
 				C670F3788B6F318BB703186712195117 /* DACircularProgressView.m in Sources */,
-				E3551C6D1EFD1BC60027F454 /* PortraitNavigationController.m in Sources */,
 				699D6D05AA0FCF96FB4B1A9FB5A8790E /* DALabeledCircularProgressView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1941,6 +1946,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3D72E30DCD432BF9239472581F55479 /* Pods-MWPhotoBrowser_Example-dummy.m in Sources */,
+				E361B4141F00947600AD5050 /* CustomeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1949,6 +1955,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A009A5959BDE92B62C551E9E14663C72 /* Pods-MWPhotoBrowser_Tests-dummy.m in Sources */,
+				E361B4151F00947600AD5050 /* CustomeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1961,6 +1968,7 @@
 				B0066412DDF481FED667053D399D86C4 /* MWGridViewController.m in Sources */,
 				0E24AC33A3022DE763B6B39EE6AE4324 /* MWPhoto.m in Sources */,
 				B5F1BF4DE52AA33E9ECFD84BF4060B5C /* MWPhotoBrowser-dummy.m in Sources */,
+				E361B4131F00947600AD5050 /* CustomeViewController.m in Sources */,
 				D351594F367B2C87613584ABA63BF2C0 /* MWPhotoBrowser.m in Sources */,
 				A045F1D42E59C5241E8D0BB9237E2936 /* MWTapDetectingImageView.m in Sources */,
 				93244F8BD16AFFD82CC01AEBD0079921 /* MWTapDetectingView.m in Sources */,

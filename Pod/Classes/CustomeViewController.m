@@ -1,18 +1,18 @@
 //
-//  PortraitNavigationController.m
-//  Nixplay
+//  CustomeViewController.m
+//  Pods
 //
-//  Created by James Kong on 23/6/2017.
+//  Created by James Kong on 26/6/2017.
 //
 //
 
-#import "PortraitNavigationController.h"
+#import "CustomeViewController.h"
 
-@interface PortraitNavigationController ()
+@interface CustomeViewController ()
 
 @end
 
-@implementation PortraitNavigationController
+@implementation CustomeViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -33,7 +33,6 @@
     // Pass the selected object to the new view controller.
 }
 */
-
 - (BOOL)shouldAutorotate
 {
     return NO;
@@ -48,4 +47,5 @@
 {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
+
 @end

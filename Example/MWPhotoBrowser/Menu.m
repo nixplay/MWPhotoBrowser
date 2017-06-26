@@ -10,6 +10,7 @@
 #import "Menu.h"
 #import "SDImageCache.h"
 #import "MWCommon.h"
+#import "CustomeViewController.h"
 
 @implementation Menu
 
@@ -1145,7 +1146,7 @@
         [self.navigationController pushViewController:browser animated:YES];
     } else {
         // Modal
-        UINavigationController *nc = [[UINavigationController alloc] initWithRootViewController:browser];
+        CustomeViewController *nc = [[CustomeViewController alloc] initWithRootViewController:browser];
         nc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         [self presentViewController:nc animated:YES completion:nil];
     }
