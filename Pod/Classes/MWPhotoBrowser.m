@@ -832,7 +832,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             // Add new page
             MWZoomingScrollView *page = [self dequeueRecycledPage];
             if (!page) {
-                page = [[MWZoomingScrollView alloc] initWithPhotoBrowser:self];
+                page = (MWZoomingScrollView*)[self InitMWZoomingScrollView];
             }
             [_visiblePages addObject:page];
             [self configurePage:page forIndex:index];
@@ -1856,4 +1856,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     return [NSBundle bundleForClass:[self class]];
 }
 
+-(MWZoomingScrollView*) InitMWZoomingScrollView {
+    MWZoomingScrollView *scrollView= [[MWZoomingScrollView alloc] initWithPhotoBrowser:self];
+    return scrollView;
+}
 @end
