@@ -149,7 +149,7 @@
 			photoImageViewFrame.size = img.size;
 			_photoImageView.frame = photoImageViewFrame;
 			self.contentSize = photoImageViewFrame.size;
-
+            [self displaySubView:photoImageViewFrame];
 			// Set zoom to minimum zoom
 			[self setMaxMinZoomScalesForCurrentBounds];
 			
@@ -161,6 +161,8 @@
 		}
 		[self setNeedsLayout];
 	}
+}
+-(void) displaySubView:(CGRect)photoImageViewFrame{
 }
 
 // Image failed so just show black!

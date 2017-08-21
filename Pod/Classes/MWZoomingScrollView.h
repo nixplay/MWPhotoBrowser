@@ -30,5 +30,5 @@
 - (void)prepareForReuse;
 - (BOOL)displayingVideo;
 - (void)setImageHidden:(BOOL)hidden;
-
+-(void) displaySubView:(CGRect)photoImageViewFrame;
 @end
