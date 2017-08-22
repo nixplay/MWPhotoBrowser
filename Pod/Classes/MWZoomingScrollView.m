@@ -351,7 +351,14 @@
 	if (!CGRectEqualToRect(_photoImageView.frame, frameToCenter))
 		_photoImageView.frame = frameToCenter;
 	
+    [self setFrameToCenter:frameToCenter];
 }
+
+
+-(void) setFrameToCenter:(CGRect)frame{
+    
+}
+
 
 #pragma mark - UIScrollViewDelegate
 

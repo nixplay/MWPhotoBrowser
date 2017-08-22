@@ -68,6 +68,8 @@
 - (void)loadAdjacentPhotosIfNecessary:(id<MWPhoto>)photo;
 - (void)releaseAllUnderlyingPhotos:(BOOL)preserveCurrent;
 
+//Extra
+- (void)setVideoLoadingIndicatorVisible:(BOOL)visible atPageIndex:(NSUInteger)pageIndex;
 @end
 // Declare private methods of browser
 @interface MWPhotoBrowser () <MWPhotoBrowserProtectedMethod> {
