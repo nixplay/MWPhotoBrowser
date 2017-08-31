@@ -138,27 +138,52 @@
                     //slow motion videos. See Here: https://overflow.buffer.com/2016/02/29/slow-motion-video-ios/
                     
                     //Output URL of the slow motion file.
-                    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
                     NSString *documentsDirectory = paths.firstObject;
-                    NSString *myPathDocs =  [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.mov",_asset.localIdentifier]];
+                    //cache it
+                    NSString *myPathDocs =  [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.mov", [[_asset.localIdentifier componentsSeparatedByString:@"/"] objectAtIndex:0]]];
+                    NSLog(@"myPathDocs %@",myPathDocs);
                     NSURL *url = [NSURL fileURLWithPath:myPathDocs];
-                    
-                    //Begin slow mo video export
-                    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
-                    exporter.outputURL = url;
-                    exporter.outputFileType = AVFileTypeQuickTimeMovie;
-                    exporter.shouldOptimizeForNetworkUse = YES;
-                    
-                    [exporter exportAsynchronouslyWithCompletionHandler:^{
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            if (exporter.status == AVAssetExportSessionStatusCompleted) {
-                                NSURL *URL = exporter.outputURL;
-                                completion(URL);
-                            }else{
-                                completion(nil);
-                            }
-                        });
-                    }];
+                    if([[NSFileManager defaultManager] fileExistsAtPath:myPathDocs]){
+                        completion(url);
+                    }else{
+                        //Begin slow mo video export
+                        AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
+                        exporter.outputURL = url;
+                        exporter.outputFileType = AVFileTypeQuickTimeMovie;
+                        exporter.shouldOptimizeForNetworkUse = YES;
+                        
+                        [exporter exportAsynchronouslyWithCompletionHandler:^{
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                switch(exporter.status){
+                                    case AVAssetExportSessionStatusUnknown:
+                                        NSLog(@"AVAssetExportSessionStatusUnknown");
+                                        break;
+                                    case AVAssetExportSessionStatusWaiting:
+                                        NSLog(@"AVAssetExportSessionStatusWaiting");
+                                        break;
+                                    case AVAssetExportSessionStatusExporting:
+                                        NSLog(@"AVAssetExportSessionStatusExporting");
+                                        break;
+                                    case AVAssetExportSessionStatusCompleted:
+                                        NSLog(@"AVAssetExportSessionStatusCompleted");
+                                        break;
+                                    case AVAssetExportSessionStatusFailed:
+                                        NSLog(@"AVAssetExportSessionStatusFailed %@",exporter.error.localizedDescription);
+                                        break;
+                                    case AVAssetExportSessionStatusCancelled:
+                                        NSLog(@"AVAssetExportSessionStatusCancelled");
+                                        break;
+                                }
+                                if (exporter.status == AVAssetExportSessionStatusCompleted) {
+                                    NSURL *URL = exporter.outputURL;
+                                    completion(URL);
+                                }else{
+                                    completion(nil);
+                                }
+                            });
+                        }];
+                    }
                     
                     
                 }else{
@@ -382,4 +407,3 @@
 }
 
 @end
-
