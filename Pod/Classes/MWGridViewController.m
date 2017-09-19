@@ -21,7 +21,7 @@
 @end
 
 @implementation MWGridViewController
-
+@synthesize bottom = _bottom;
 - (id)init {
     if ((self = [super initWithCollectionViewLayout:[UICollectionViewFlowLayout new]])) {
         
@@ -111,7 +111,12 @@
 
 - (void)performLayout {
     UINavigationBar *navBar = self.navigationController.navigationBar;
-    self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter], 0, 0, 0);
+    CGSize statubarSize = [[UIApplication sharedApplication] statusBarFrame].size;
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y - statubarSize.height, 0, [self getBottom], 0);
+    }else{
+        self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter], 0, [self getBottom], 0);
+    }
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -143,6 +148,10 @@
     } else {
         return _gutterL;
     }
+}
+
+- (CGFloat) getBottom{
+    return _bottom;
 }
 
 #pragma mark - Collection View

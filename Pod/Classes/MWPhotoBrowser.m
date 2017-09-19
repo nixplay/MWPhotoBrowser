@@ -1361,7 +1361,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Perform any adjustments
     [_gridController.view layoutIfNeeded];
     [_gridController adjustOffsetsAsRequired];
-    
+    if([_toolbar.items count] > 0){
+        _gridController.bottom = _toolbar.frame.size.height;
+    }
     // Hide action button on nav bar if it exists
     if (self.navigationItem.rightBarButtonItem == _actionButton) {
         _gridPreviousRightNavItem = _actionButton;
@@ -1410,7 +1412,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if (!_gridController) return;
     
     // Remember previous content offset
-    _currentGridContentOffset = _gridController.collectionView.contentOffset;
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        UINavigationBar *navBar = self.navigationController.navigationBar;
+        float navigationBarHeight = navBar.frame.size.height;
+        float statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+        
+        _currentGridContentOffset = CGPointMake(_gridController.collectionView.contentOffset .x, _gridController.collectionView.contentOffset.y + navigationBarHeight + statusBarHeight);
+    } else {
+        _currentGridContentOffset = _gridController.collectionView.contentOffset;
+    }
     
     // Restore action button if it was removed
     if (_gridPreviousRightNavItem == _actionButton && _actionButton) {
