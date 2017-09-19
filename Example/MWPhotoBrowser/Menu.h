@@ -13,6 +13,8 @@
 @interface Menu : UITableViewController <MWPhotoBrowserDelegate> {
     UISegmentedControl *_segmentedControl;
     NSMutableArray *_selections;
+    MWGridViewController* _gridController;
+    UIToolbar *_toolbar;
 }
 
 @property (nonatomic, strong) NSMutableArray *photos;
