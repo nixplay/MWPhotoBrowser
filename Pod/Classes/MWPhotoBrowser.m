@@ -12,9 +12,10 @@
 #import "MWPhotoBrowserPrivate.h"
 #import "SDImageCache.h"
 #import "UIImage+MWPhotoBrowser.h"
-
+#import "DeviceUtil.h"
+#import "Masonry.h"
 #define PADDING                  10
-
+#define IS_IPHONE_X [[self getDeviceName] isEqualToString:IPHONE_X]
 static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 @implementation MWPhotoBrowser
@@ -22,6 +23,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 #pragma mark - Init
 
 - (id)init {
+    
     if ((self = [super init])) {
         [self _initialisation];
     }
@@ -147,6 +149,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     self.view.backgroundColor = [UIColor blackColor];
     self.view.clipsToBounds = YES;
     
+    
     // Setup paging scrolling view
     CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
     _pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
@@ -160,14 +163,27 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     [self.view addSubview:_pagingScrollView];
     
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
+    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
     _toolbar.tintColor = [UIColor whiteColor];
     _toolbar.barTintColor = nil;
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
+//    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     _toolbar.barStyle = UIBarStyleDefault;
-    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+//    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    [self.view addSubview:_toolbar];
     
+    [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+
+        if(IS_IPHONE_X) {
+            if(@available(iOS 11, *)){
+                make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+            }
+        }else{
+            make.bottom.equalTo(_toolbar.superview.mas_bottom);
+        }
+        make.right.equalTo(_toolbar.superview.mas_right);
+        make.left.equalTo(_toolbar.superview.mas_left);
+    }];
     // Toolbar Items
     if (self.displayNavArrows) {
         NSString *arrowPathFormat = @"MWPhotoBrowser.bundle/UIBarButtonItemArrow%@";
@@ -256,6 +272,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
             [_toolbar setItems:[self.delegate photoBrowser:self buildToolbarItems:_toolbar]];
             [self.view addSubview:_toolbar];
+            
         }else{
             BOOL hasItems = NO;
             UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
@@ -310,6 +327,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                 [_toolbar removeFromSuperview];
             } else {
                 [self.view addSubview:_toolbar];
+                
             }
         }
         
@@ -338,23 +356,23 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (BOOL)presentingViewControllerPrefersStatusBarHidden {
-    UIViewController *presenting = self.presentingViewController;
-    if (presenting) {
-        if ([presenting isKindOfClass:[UINavigationController class]]) {
-            presenting = [(UINavigationController *)presenting topViewController];
+        UIViewController *presenting = self.presentingViewController;
+        if (presenting) {
+            if ([presenting isKindOfClass:[UINavigationController class]]) {
+                presenting = [(UINavigationController *)presenting topViewController];
+            }
+        } else {
+            // We're in a navigation controller so get previous one!
+            if (self.navigationController && self.navigationController.viewControllers.count > 1) {
+                presenting = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
+            }
         }
-    } else {
-        // We're in a navigation controller so get previous one!
-        if (self.navigationController && self.navigationController.viewControllers.count > 1) {
-            presenting = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
+        if (presenting) {
+            return [presenting prefersStatusBarHidden];
+        } else {
+            return NO;
         }
     }
-    if (presenting) {
-        return [presenting prefersStatusBarHidden];
-    } else {
-        return NO;
-    }
-}
 
 #pragma mark - Appearance
 
@@ -528,8 +546,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _performingLayout = YES;
     
     // Toolbar
-    _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
+    _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
     
+    [_toolbar setNeedsDisplay];
     // Remember index
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
@@ -1029,17 +1048,27 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (CGRect)frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation {
+    
     CGFloat height = 44;
+    
+    CGFloat posY = (IS_IPHONE_X) ? self.view.bounds.size.height - (height+32) : self.view.bounds.size.height - height;
+    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
-        UIInterfaceOrientationIsLandscape(orientation)) height = 32;
-    return CGRectIntegral(CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height));
+        UIInterfaceOrientationIsLandscape(orientation)){
+        height = 32;
+        posY = (IS_IPHONE_X) ? self.view.bounds.size.width - (height+16) : self.view.bounds.size.width - height;
+    }
+    return CGRectIntegral(CGRectMake(0, posY, self.view.bounds.size.width, height));
 }
 
 - (CGRect)frameForCaptionView:(MWCaptionView *)captionView atIndex:(NSUInteger)index {
     CGRect pageFrame = [self frameForPageAtIndex:index];
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
     CGRect captionFrame = CGRectMake(pageFrame.origin.x,
-                                     pageFrame.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0),
+                                     pageFrame.size.height - captionSize.height -
+                                     ((IS_IPHONE_X) ?((_toolbar.superview && !UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))? 88 : 72 ) :
+                                      (_toolbar.superview?_toolbar.frame.size.height:0)
+                                      ),
                                      pageFrame.size.width,
                                      captionSize.height);
     return CGRectIntegral(captionFrame);
@@ -1351,6 +1380,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _gridController.view.frame = self.view.bounds;
     _gridController.view.frame = CGRectOffset(_gridController.view.frame, 0, (self.startOnGrid ? -1 : 1) * self.view.bounds.size.height);
     
+
     // Stop specific layout being triggered
     _skipNextPagingScrollViewPositioning = YES;
     
@@ -1400,6 +1430,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
         [_toolbar setItems:items];
         [self.view addSubview:_toolbar];
+        
     }
 }
 -(void)hideToolBar{
@@ -1487,10 +1518,11 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             
             // View controller based so animate away
             _statusBarShouldBeHidden = hidden;
-            [UIView animateWithDuration:animationDuration animations:^(void) {
-                [self setNeedsStatusBarAppearanceUpdate];
-            } completion:^(BOOL finished) {}];
-            
+            if(!IS_IPHONE_X){
+                [UIView animateWithDuration:animationDuration animations:^(void) {
+                    [self setNeedsStatusBarAppearanceUpdate];
+                } completion:^(BOOL finished) {}];
+            }
         }
         
     }
@@ -1500,7 +1532,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if ([self areControlsHidden] && !hidden && animated) {
         
         // Toolbar
-        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:self.interfaceOrientation], 0, animatonOffset);
+//        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]], 0, animatonOffset);
         
         // Captions
         for (MWZoomingScrollView *page in _visiblePages) {
@@ -1522,8 +1554,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [self.navigationController.navigationBar setAlpha:alpha];
         
         // Toolbar
-        _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
-        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
+//        _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+//        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
         _toolbar.alpha = alpha;
         
         // Captions
@@ -1531,10 +1563,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             if (page.captionView) {
                 MWCaptionView *v = page.captionView;
                 // Pass any index, all we're interested in is the Y
-                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
-                captionFrame.origin.x = v.frame.origin.x; // Reset X
-                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
-                v.frame = captionFrame;
+//                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
+//                captionFrame.origin.x = v.frame.origin.x; // Reset X
+//                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
+//                v.frame = captionFrame;
                 v.alpha = alpha;
             }
         }
@@ -1861,5 +1893,33 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
-
+- (NSString*)getDeviceName
+{
+    if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone) {
+        
+        switch ((int)[[UIScreen mainScreen] nativeBounds].size.height) {
+            case 480:
+                return IPHONE_CLASSIC;
+                break;
+            case 960:
+                return IPHONE_4;
+                break;
+            case 1136:
+                return IPHONE_5;
+                break;
+            case 1334:
+                return IPHONE_6;
+                break;
+            case 2208:
+                return IPHONE_6PLUS;
+                break;
+            case 2436:
+                return IPHONE_X;
+                break;
+            default:
+                return IPHONE_UNKNOWN;
+        }
+    }
+    return IPHONE_UNKNOWN;
+}
 @end
