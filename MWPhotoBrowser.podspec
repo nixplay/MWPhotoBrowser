@@ -44,5 +44,6 @@ Pod::Spec.new do |s|
   # 3.7.2 contains bugs downloading local files
   # https://github.com/rs/SDWebImage/issues/1109
     s.dependency 'SDWebImage'
-
+    s.dependency 'DeviceUtil'
+    s.dependency 'Masonry'
 end
