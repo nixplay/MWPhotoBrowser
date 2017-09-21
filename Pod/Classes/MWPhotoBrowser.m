@@ -1066,7 +1066,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
     CGRect captionFrame = CGRectMake(pageFrame.origin.x,
                                      pageFrame.size.height - captionSize.height -
-                                     ((IS_IPHONE_X) ?((_toolbar.superview && !UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))? 88 : 72 ) :
+                                     ((IS_IPHONE_X) ?((_toolbar.superview && !UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))? 80 : 70 ) :
                                       (_toolbar.superview?_toolbar.frame.size.height:0)
                                       ),
                                      pageFrame.size.width,
