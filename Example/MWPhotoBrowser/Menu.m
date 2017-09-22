@@ -1151,7 +1151,7 @@
         nc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         [self presentViewController:nc animated:YES completion:nil];
     }
-    
+
     // Release
 	
 	// Deselect
@@ -1246,18 +1246,18 @@
     
     return YES;
 }
-- (NSMutableArray*)photoBrowser:(MWPhotoBrowser *)photoBrowser buildToolbarItems:(UIToolbar*)toolBar{
-    
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    if(_gridController != nil){
-    
-        UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
-        [items addObject:actionButton];
-        
-    }
-    return items;
-    
-}
+//- (NSMutableArray*)photoBrowser:(MWPhotoBrowser *)photoBrowser buildToolbarItems:(UIToolbar*)toolBar{
+//    
+//    NSMutableArray *items = [[NSMutableArray alloc] init];
+//    if(_gridController != nil){
+//    
+//        UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+//        [items addObject:actionButton];
+//        
+//    }
+//    return items;
+//    
+//}
 
 - (void)actionButtonPressed:(id)sender {
     
