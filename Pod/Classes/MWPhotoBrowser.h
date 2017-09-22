@@ -79,4 +79,5 @@
 
 -(void)showToolBar;
 -(void)hideToolBar;
+-(UIToolbar *) toolbar;
 @end

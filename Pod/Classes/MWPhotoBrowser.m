@@ -1922,4 +1922,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
     return IPHONE_UNKNOWN;
 }
+
+-(UIToolbar *) toolbar{
+    return _toolbar;
+}
+
 @end
