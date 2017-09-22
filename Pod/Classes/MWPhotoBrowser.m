@@ -167,13 +167,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _toolbar.tintColor = [UIColor whiteColor];
     _toolbar.barTintColor = nil;
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-//    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
+    //    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     _toolbar.barStyle = UIBarStyleDefault;
-//    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    //    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     [self.view addSubview:_toolbar];
     
     [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
-
+        
         if(IS_IPHONE_X) {
             if(@available(iOS 11, *)){
                 make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
@@ -327,7 +327,18 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                 [_toolbar removeFromSuperview];
             } else {
                 [self.view addSubview:_toolbar];
-                
+                [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                    
+                    if(IS_IPHONE_X) {
+                        if(@available(iOS 11, *)){
+                            make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                        }
+                    }else{
+                        make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                    }
+                    make.right.equalTo(_toolbar.superview.mas_right);
+                    make.left.equalTo(_toolbar.superview.mas_left);
+                }];
             }
         }
         
@@ -356,23 +367,23 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (BOOL)presentingViewControllerPrefersStatusBarHidden {
-        UIViewController *presenting = self.presentingViewController;
-        if (presenting) {
-            if ([presenting isKindOfClass:[UINavigationController class]]) {
-                presenting = [(UINavigationController *)presenting topViewController];
-            }
-        } else {
-            // We're in a navigation controller so get previous one!
-            if (self.navigationController && self.navigationController.viewControllers.count > 1) {
-                presenting = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
-            }
+    UIViewController *presenting = self.presentingViewController;
+    if (presenting) {
+        if ([presenting isKindOfClass:[UINavigationController class]]) {
+            presenting = [(UINavigationController *)presenting topViewController];
         }
-        if (presenting) {
-            return [presenting prefersStatusBarHidden];
-        } else {
-            return NO;
+    } else {
+        // We're in a navigation controller so get previous one!
+        if (self.navigationController && self.navigationController.viewControllers.count > 1) {
+            presenting = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
         }
     }
+    if (presenting) {
+        return [presenting prefersStatusBarHidden];
+    } else {
+        return NO;
+    }
+}
 
 #pragma mark - Appearance
 
@@ -1380,7 +1391,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _gridController.view.frame = self.view.bounds;
     _gridController.view.frame = CGRectOffset(_gridController.view.frame, 0, (self.startOnGrid ? -1 : 1) * self.view.bounds.size.height);
     
-
+    
     // Stop specific layout being triggered
     _skipNextPagingScrollViewPositioning = YES;
     
@@ -1430,7 +1441,18 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
         [_toolbar setItems:items];
         [self.view addSubview:_toolbar];
-        
+        [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+            
+            if(IS_IPHONE_X) {
+                if(@available(iOS 11, *)){
+                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                }
+            }else{
+                make.bottom.equalTo(_toolbar.superview.mas_bottom);
+            }
+            make.right.equalTo(_toolbar.superview.mas_right);
+            make.left.equalTo(_toolbar.superview.mas_left);
+        }];
     }
 }
 -(void)hideToolBar{
@@ -1532,7 +1554,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if ([self areControlsHidden] && !hidden && animated) {
         
         // Toolbar
-//        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]], 0, animatonOffset);
+        //        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]], 0, animatonOffset);
         
         // Captions
         for (MWZoomingScrollView *page in _visiblePages) {
@@ -1554,8 +1576,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [self.navigationController.navigationBar setAlpha:alpha];
         
         // Toolbar
-//        _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-//        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
+        //        _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        //        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
         _toolbar.alpha = alpha;
         
         // Captions
@@ -1563,10 +1585,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             if (page.captionView) {
                 MWCaptionView *v = page.captionView;
                 // Pass any index, all we're interested in is the Y
-//                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
-//                captionFrame.origin.x = v.frame.origin.x; // Reset X
-//                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
-//                v.frame = captionFrame;
+                //                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
+                //                captionFrame.origin.x = v.frame.origin.x; // Reset X
+                //                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
+                //                v.frame = captionFrame;
                 v.alpha = alpha;
             }
         }
@@ -1898,22 +1920,22 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone) {
         
         switch ((int)[[UIScreen mainScreen] nativeBounds].size.height) {
-            case 480:
+                case 480:
                 return IPHONE_CLASSIC;
                 break;
-            case 960:
+                case 960:
                 return IPHONE_4;
                 break;
-            case 1136:
+                case 1136:
                 return IPHONE_5;
                 break;
-            case 1334:
+                case 1334:
                 return IPHONE_6;
                 break;
-            case 2208:
+                case 2208:
                 return IPHONE_6PLUS;
                 break;
-            case 2436:
+                case 2436:
                 return IPHONE_X;
                 break;
             default:
@@ -1928,3 +1950,4 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 @end
+
