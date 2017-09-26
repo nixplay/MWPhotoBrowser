@@ -171,13 +171,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _toolbar.barStyle = UIBarStyleDefault;
     //    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     [self.view addSubview:_toolbar];
-    
     [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
-        
-        if(IS_IPHONE_X) {
-            if(@available(iOS 11, *)){
-                make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
-            }
+        if(@available(iOS 11, *)){
+            make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
         }else{
             make.bottom.equalTo(_toolbar.superview.mas_bottom);
         }
@@ -272,6 +268,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
             [_toolbar setItems:[self.delegate photoBrowser:self buildToolbarItems:_toolbar]];
             [self.view addSubview:_toolbar];
+            [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                if(@available(iOS 11, *)){
+                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                }else{
+                    make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                }
+                make.right.equalTo(_toolbar.superview.mas_right);
+                make.left.equalTo(_toolbar.superview.mas_left);
+            }];
             
         }else{
             BOOL hasItems = NO;
@@ -306,7 +311,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             } else {
                 // We're not showing the toolbar so try and show in top right
                 if (_actionButton)
-                self.navigationItem.rightBarButtonItem = _actionButton;
+                    self.navigationItem.rightBarButtonItem = _actionButton;
                 [items addObject:fixedSpace];
             }
             
@@ -853,7 +858,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
     [_visiblePages minusSet:_recycledPages];
     while (_recycledPages.count > 2) // Only keep 2 recycled pages
-    [_recycledPages removeObject:[_recycledPages anyObject]];
+        [_recycledPages removeObject:[_recycledPages anyObject]];
     
     // Add missing pages
     for (NSUInteger index = (NSUInteger)iFirstIndex; index <= (NSUInteger)iLastIndex; index++) {
@@ -927,7 +932,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (BOOL)isDisplayingPageForIndex:(NSUInteger)index {
     for (MWZoomingScrollView *page in _visiblePages)
-    if (page.index == index) return YES;
+        if (page.index == index) return YES;
     return NO;
 }
 
@@ -1016,7 +1021,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Notify delegate
     if (index != _previousPageIndex) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:)])
-        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index];
+            [_delegate photoBrowser:self didDisplayPhotoAtIndex:index];
         _previousPageIndex = index;
     }
     
@@ -1067,7 +1072,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
         UIInterfaceOrientationIsLandscape(orientation)){
         height = 32;
-        posY = (IS_IPHONE_X) ? self.view.bounds.size.width - (height+16) : self.view.bounds.size.width - height;
+        CGFloat frameHeight = self.view.bounds.size.height > self.view.bounds.size.width ? self.view.bounds.size.width : self.view.bounds.size.height;
+        posY = (IS_IPHONE_X) ? frameHeight - (height+16) : frameHeight - height;
     }
     return CGRectIntegral(CGRectMake(0, posY, self.view.bounds.size.width, height));
 }
@@ -1518,7 +1524,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
     // Force visible
     if (![self numberOfPhotos] || _gridController || _alwaysShowControls)
-    hidden = NO;
+        hidden = NO;
     
     // Cancel any timers
     [self cancelControlHiding];
@@ -1658,13 +1664,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         index = 0;
     } else {
         if (index >= photoCount)
-        index = [self numberOfPhotos]-1;
+            index = [self numberOfPhotos]-1;
     }
     _currentPageIndex = index;
     if ([self isViewLoaded]) {
         [self jumpToPageAtIndex:index animated:NO];
         if (!_viewIsActive)
-        [self tilePages]; // Force tiling if view is not visible
+            [self tilePages]; // Force tiling if view is not visible
     }
 }
 
@@ -1742,6 +1748,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if([items count]>0){
             [_toolbar setItems:items];
             [self.view addSubview:_toolbar];
+            [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                if(@available(iOS 11, *)){
+                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                }else{
+                    make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                }
+                make.right.equalTo(_toolbar.superview.mas_right);
+                make.left.equalTo(_toolbar.superview.mas_left);
+            }];
         }
     }else{
         UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
@@ -1767,6 +1782,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         }
         [_toolbar setItems:items];
         [self.view addSubview:_toolbar];
+        [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+            if(@available(iOS 11, *)){
+                make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+            }else{
+                make.bottom.equalTo(_toolbar.superview.mas_bottom);
+            }
+            make.right.equalTo(_toolbar.superview.mas_right);
+            make.left.equalTo(_toolbar.superview.mas_left);
+        }];
     }
     
     
@@ -1920,22 +1944,22 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone) {
         
         switch ((int)[[UIScreen mainScreen] nativeBounds].size.height) {
-                case 480:
+            case 480:
                 return IPHONE_CLASSIC;
                 break;
-                case 960:
+            case 960:
                 return IPHONE_4;
                 break;
-                case 1136:
+            case 1136:
                 return IPHONE_5;
                 break;
-                case 1334:
+            case 1334:
                 return IPHONE_6;
                 break;
-                case 2208:
+            case 2208:
                 return IPHONE_6PLUS;
                 break;
-                case 2436:
+            case 2436:
                 return IPHONE_X;
                 break;
             default:
