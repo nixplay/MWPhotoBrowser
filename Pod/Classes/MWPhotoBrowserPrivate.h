@@ -111,7 +111,7 @@
     UIImage *_previousNavigationBarBackgroundImageLandscapePhone;
     
     // Video
-    MPMoviePlayerViewController *_currentVideoPlayerViewController;
+//    MPMoviePlayerViewController *_currentVideoPlayerViewController;
     NSUInteger _currentVideoIndex;
     UIActivityIndicatorView *_currentVideoLoadingIndicator;
     
