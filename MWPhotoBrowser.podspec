@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name = 'MWPhotoBrowser'
-  s.version = '2.1.22'
+  s.version = '2.1.26'
   s.license = 'MIT'
   s.summary = 'A simple iOS photo and video browser with optional grid view, captions and selections.'
   s.description = <<-DESCRIPTION
@@ -44,5 +44,6 @@ Pod::Spec.new do |s|
   # 3.7.2 contains bugs downloading local files
   # https://github.com/rs/SDWebImage/issues/1109
     s.dependency 'SDWebImage'
-
+    s.dependency 'DeviceUtil'
+    s.dependency 'Masonry'
 end

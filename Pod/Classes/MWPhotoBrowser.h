@@ -79,6 +79,6 @@
 
 -(void)showToolBar;
 -(void)hideToolBar;
-
 - (void)setVideoLoadingIndicatorVisible:(BOOL)visible atPageIndex:(NSUInteger)pageInde;
+-(UIToolbar *) toolbar;
 @end

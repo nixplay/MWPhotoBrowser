@@ -12,8 +12,10 @@
 #import "MWPhotoBrowserPrivate.h"
 #import "SDImageCache.h"
 #import "UIImage+MWPhotoBrowser.h"
-
+#import "DeviceUtil.h"
+#import "Masonry.h"
 #define PADDING                  10
+#define IS_IPHONE_X [[self getDeviceName] isEqualToString:IPHONE_X]
 
 static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
@@ -159,15 +161,25 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self.view addSubview:_pagingScrollView];
     
+    
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
+    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
     _toolbar.tintColor = [UIColor whiteColor];
     _toolbar.barTintColor = nil;
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
+    //    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     _toolbar.barStyle = UIBarStyleDefault;
-    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
-    
+    //    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    [self.view addSubview:_toolbar];
+    [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+        if(@available(iOS 11, *)){
+            make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+        }else{
+            make.bottom.equalTo(_toolbar.superview.mas_bottom);
+        }
+        make.right.equalTo(_toolbar.superview.mas_right);
+        make.left.equalTo(_toolbar.superview.mas_left);
+    }];
     // Toolbar Items
     if (self.displayNavArrows) {
         NSString *arrowPathFormat = @"MWPhotoBrowser.bundle/UIBarButtonItemArrow%@";
@@ -256,6 +268,16 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
             [_toolbar setItems:[self.delegate photoBrowser:self buildToolbarItems:_toolbar]];
             [self.view addSubview:_toolbar];
+            [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                if(@available(iOS 11, *)){
+                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                }else{
+                    make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                }
+                make.right.equalTo(_toolbar.superview.mas_right);
+                make.left.equalTo(_toolbar.superview.mas_left);
+            }];
+            
         }else{
             BOOL hasItems = NO;
             UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
@@ -310,6 +332,18 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                 [_toolbar removeFromSuperview];
             } else {
                 [self.view addSubview:_toolbar];
+                [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                    
+                    if(IS_IPHONE_X) {
+                        if(@available(iOS 11, *)){
+                            make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                        }
+                    }else{
+                        make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                    }
+                    make.right.equalTo(_toolbar.superview.mas_right);
+                    make.left.equalTo(_toolbar.superview.mas_left);
+                }];
             }
         }
         
@@ -528,8 +562,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _performingLayout = YES;
     
     // Toolbar
-    _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
+    _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
     
+    [_toolbar setNeedsDisplay];
     // Remember index
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
@@ -1029,17 +1064,28 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (CGRect)frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation {
+    
     CGFloat height = 44;
+    
+    CGFloat posY = (IS_IPHONE_X) ? self.view.bounds.size.height - (height+32) : self.view.bounds.size.height - height;
+    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
-        UIInterfaceOrientationIsLandscape(orientation)) height = 32;
-    return CGRectIntegral(CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height));
+        UIInterfaceOrientationIsLandscape(orientation)){
+        height = 32;
+        CGFloat frameHeight = self.view.bounds.size.height > self.view.bounds.size.width ? self.view.bounds.size.width : self.view.bounds.size.height;
+        posY = (IS_IPHONE_X) ? frameHeight - (height+16) : frameHeight - height;
+    }
+    return CGRectIntegral(CGRectMake(0, posY, self.view.bounds.size.width, height));
 }
 
 - (CGRect)frameForCaptionView:(MWCaptionView *)captionView atIndex:(NSUInteger)index {
     CGRect pageFrame = [self frameForPageAtIndex:index];
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
     CGRect captionFrame = CGRectMake(pageFrame.origin.x,
-                                     pageFrame.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0),
+                                     pageFrame.size.height - captionSize.height -
+                                     ((IS_IPHONE_X) ?((_toolbar.superview && !UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))? 80 : 70 ) :
+                                      (_toolbar.superview?_toolbar.frame.size.height:0)
+                                      ),
                                      pageFrame.size.width,
                                      captionSize.height);
     return CGRectIntegral(captionFrame);
@@ -1361,7 +1407,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Perform any adjustments
     [_gridController.view layoutIfNeeded];
     [_gridController adjustOffsetsAsRequired];
-    
+    if([_toolbar.items count] > 0){
+        _gridController.bottom = _toolbar.frame.size.height;
+    }
     // Hide action button on nav bar if it exists
     if (self.navigationItem.rightBarButtonItem == _actionButton) {
         _gridPreviousRightNavItem = _actionButton;
@@ -1398,6 +1446,18 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
         [_toolbar setItems:items];
         [self.view addSubview:_toolbar];
+        [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+            
+            if(IS_IPHONE_X) {
+                if(@available(iOS 11, *)){
+                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                }
+            }else{
+                make.bottom.equalTo(_toolbar.superview.mas_bottom);
+            }
+            make.right.equalTo(_toolbar.superview.mas_right);
+            make.left.equalTo(_toolbar.superview.mas_left);
+        }];
     }
 }
 -(void)hideToolBar{
@@ -1410,7 +1470,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if (!_gridController) return;
     
     // Remember previous content offset
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        UINavigationBar *navBar = self.navigationController.navigationBar;
+        float navigationBarHeight = navBar.frame.size.height;
+        float statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+        
+        _currentGridContentOffset = CGPointMake(_gridController.collectionView.contentOffset .x, _gridController.collectionView.contentOffset.y + navigationBarHeight + statusBarHeight);
+    } else {
     _currentGridContentOffset = _gridController.collectionView.contentOffset;
+    }
     
     // Restore action button if it was removed
     if (_gridPreviousRightNavItem == _actionButton && _actionButton) {
@@ -1477,10 +1545,11 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             
             // View controller based so animate away
             _statusBarShouldBeHidden = hidden;
+            if(!IS_IPHONE_X){
             [UIView animateWithDuration:animationDuration animations:^(void) {
                 [self setNeedsStatusBarAppearanceUpdate];
             } completion:^(BOOL finished) {}];
-            
+            }
         }
         
     }
@@ -1490,7 +1559,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if ([self areControlsHidden] && !hidden && animated) {
         
         // Toolbar
-        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:self.interfaceOrientation], 0, animatonOffset);
+        //        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]], 0, animatonOffset);
         
         // Captions
         for (MWZoomingScrollView *page in _visiblePages) {
@@ -1512,8 +1581,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [self.navigationController.navigationBar setAlpha:alpha];
         
         // Toolbar
-        _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
-        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
+        //        _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        //        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
         _toolbar.alpha = alpha;
         
         // Captions
@@ -1521,10 +1590,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             if (page.captionView) {
                 MWCaptionView *v = page.captionView;
                 // Pass any index, all we're interested in is the Y
-                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
-                captionFrame.origin.x = v.frame.origin.x; // Reset X
-                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
-                v.frame = captionFrame;
+                //                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
+                //                captionFrame.origin.x = v.frame.origin.x; // Reset X
+                //                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
+                //                v.frame = captionFrame;
                 v.alpha = alpha;
             }
         }
@@ -1678,6 +1747,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if([items count]>0){
             [_toolbar setItems:items];
             [self.view addSubview:_toolbar];
+            [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                if(@available(iOS 11, *)){
+                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                }else{
+                    make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                }
+                make.right.equalTo(_toolbar.superview.mas_right);
+                make.left.equalTo(_toolbar.superview.mas_left);
+            }];
         }
     }else{
         UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
@@ -1703,6 +1781,15 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         }
         [_toolbar setItems:items];
         [self.view addSubview:_toolbar];
+        [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+            if(@available(iOS 11, *)){
+                make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+            }else{
+                make.bottom.equalTo(_toolbar.superview.mas_bottom);
+            }
+            make.right.equalTo(_toolbar.superview.mas_right);
+            make.left.equalTo(_toolbar.superview.mas_left);
+        }];
     }
     
     
@@ -1850,6 +1937,39 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+- (NSString*)getDeviceName
+{
+    if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone) {
+        
+        switch ((int)[[UIScreen mainScreen] nativeBounds].size.height) {
+            case 480:
+                return IPHONE_CLASSIC;
+                break;
+            case 960:
+                return IPHONE_4;
+                break;
+            case 1136:
+                return IPHONE_5;
+                break;
+            case 1334:
+                return IPHONE_6;
+                break;
+            case 2208:
+                return IPHONE_6PLUS;
+                break;
+            case 2436:
+                return IPHONE_X;
+                break;
+            default:
+                return IPHONE_UNKNOWN;
+        }
+    }
+    return IPHONE_UNKNOWN;
+}
+
+-(UIToolbar *) toolbar{
+    return _toolbar;
 }
 
 -(NSBundle*) getBundle{

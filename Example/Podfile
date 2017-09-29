@@ -4,6 +4,7 @@ platform :ios, "8.0"
 target 'MWPhotoBrowser_Example'  do
   pod 'MWPhotoBrowser', :path => '../'
   pod 'SDWebImage' , '4.0.0'
+  pod 'AVPlayerView', :git => 'https://www.github.com/nixplay/AVPlayerView.git', :branch => 'develop'
 end
 
 target 'MWPhotoBrowser_Tests' do

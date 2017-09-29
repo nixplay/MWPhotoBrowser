@@ -9,7 +9,7 @@
 #import "MWCommon.h"
 #import "MWCaptionView.h"
 #import "MWPhoto.h"
-
+#import "Masonry.h"
 static const CGFloat labelPadding = 10;
 
 // Private
@@ -64,6 +64,15 @@ static const CGFloat labelPadding = 10;
         _label.text = [_photo caption] ? [_photo caption] : @" ";
     }
     [self addSubview:_label];
+    [_label mas_makeConstraints:^(MASConstraintMaker *make) {
+        if(@available(iOS 11, *)){
+            make.left.equalTo(_label.superview.mas_left).with.offset(20);
+            make.right.equalTo(_label.superview.mas_right).with.offset(-20);
+            
+            make.top.equalTo(_label.superview.mas_top);
+            make.bottom.equalTo(_label.superview.mas_bottom);
+        }
+    }];
 }
 
 

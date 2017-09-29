@@ -1108,6 +1108,7 @@
                     }
                 }
             }
+            startOnGrid = YES;
 			break;
         }
 		default: break;
@@ -1150,7 +1151,7 @@
         nc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         [self presentViewController:nc animated:YES completion:nil];
     }
-    
+
     // Release
 	
 	// Deselect
@@ -1234,7 +1235,35 @@
     NSLog(@"Did finish modal presentation");
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+- (BOOL)photoBrowser:(MWPhotoBrowser *)photoBrowser showGridController:(MWGridViewController*)gridController{
+    _gridController = gridController;
+    [photoBrowser showToolBar];
+    
+    return YES;
+}
+- (BOOL)photoBrowser:(MWPhotoBrowser *)photoBrowser hideGridController:(MWGridViewController*)gridController{
+    _gridController = nil;
+    
+    return YES;
+}
+//- (NSMutableArray*)photoBrowser:(MWPhotoBrowser *)photoBrowser buildToolbarItems:(UIToolbar*)toolBar{
+//    
+//    NSMutableArray *items = [[NSMutableArray alloc] init];
+//    if(_gridController != nil){
+//    
+//        UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+//        [items addObject:actionButton];
+//        
+//    }
+//    return items;
+//    
+//}
 
+- (void)actionButtonPressed:(id)sender {
+    
+    // Only react when image has loaded
+    
+}
 #pragma mark - Load Assets
 
 - (void)loadAssets {

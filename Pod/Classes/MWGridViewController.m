@@ -21,7 +21,7 @@
 @end
 
 @implementation MWGridViewController
-
+@synthesize bottom = _bottom;
 - (id)init {
     if ((self = [super initWithCollectionViewLayout:[UICollectionViewFlowLayout new]])) {
         
@@ -109,9 +109,24 @@
     
 }
 
+- (void)viewSafeAreaInsetsDidChange {
+    [super viewSafeAreaInsetsDidChange];
+    UIEdgeInsets contentInset = self.collectionView.contentInset;
+    contentInset.left = self.view.safeAreaInsets.left;
+    contentInset.right = self.view.safeAreaInsets.right;
+    self.collectionView.contentInset = contentInset;
+}
+
 - (void)performLayout {
     UINavigationBar *navBar = self.navigationController.navigationBar;
-    self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter], 0, 0, 0);
+    CGSize statubarSize = [[UIApplication sharedApplication] statusBarFrame].size;
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        if(@available(iOS 11, *)){
+            self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y - statubarSize.height, self.view.safeAreaInsets.left, [self getBottom], self.view.safeAreaInsets.right);
+        }
+    }else{
+        self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter], 0, [self getBottom], 0);
+    }
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -122,7 +137,7 @@
 #pragma mark - Layout
 
 - (CGFloat)getColumns {
-    if ((UIInterfaceOrientationIsPortrait(self.interfaceOrientation))) {
+    if ((UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))) {
         return _columns;
     } else {
         return _columnsL;
@@ -130,7 +145,7 @@
 }
 
 - (CGFloat)getMargin {
-    if ((UIInterfaceOrientationIsPortrait(self.interfaceOrientation))) {
+    if ((UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))) {
         return _margin;
     } else {
         return _marginL;
@@ -138,11 +153,15 @@
 }
 
 - (CGFloat)getGutter {
-    if ((UIInterfaceOrientationIsPortrait(self.interfaceOrientation))) {
+    if ((UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))) {
         return _gutter;
     } else {
         return _gutterL;
     }
+}
+
+- (CGFloat) getBottom{
+    return _bottom;
 }
 
 #pragma mark - Collection View
@@ -190,8 +209,14 @@
     CGFloat margin = [self getMargin];
     CGFloat gutter = [self getGutter];
     CGFloat columns = [self getColumns];
-    CGFloat value = floorf(((self.view.bounds.size.width - (columns - 1) * gutter - 2 * margin) / columns));
-    return CGSizeMake(value, value);
+    
+    if(@available(iOS 11, *)){
+        CGFloat value = floorf((((self.view.bounds.size.width-self.view.safeAreaInsets.left-self.view.safeAreaInsets.right) - (columns - 1) * gutter - 2 * margin) / columns));
+        return CGSizeMake(value, value);
+    }else{
+        CGFloat value = floorf(((self.view.bounds.size.width - (columns - 1) * gutter - 2 * margin) / columns));
+        return CGSizeMake(value, value);
+    }
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
