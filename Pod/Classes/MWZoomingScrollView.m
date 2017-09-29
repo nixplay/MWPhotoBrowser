@@ -529,8 +529,8 @@
         _videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
         _videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
         [_playerLayer setFrame:CGRectZero];
-        [_videoPlayer addSubview:_videoLayer];
-        
+        [_videoPlayer setBackgroundColor:[UIColor clearColor]];
+        [self addSubview: _videoPlayer];
         _videoLayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         
         _videoPlayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
@@ -562,8 +562,8 @@
             [self stopPlaybackTimeChecker];
             [self playButton].hidden = NO;
         }else {
-            if(self.videoPlayer.superview == nil){
-                [self addSubview:self.videoPlayer];
+            if(self.videoLayer.superview == nil){
+                [self.videoPlayer addSubview:self.videoLayer];
             }
             [self playButton].hidden = YES;
             
