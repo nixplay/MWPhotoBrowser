@@ -509,7 +509,9 @@
 }
 
 #pragma mark - Video
-
+-(void) setAsset:(AVAsset *)asset{
+    _asset = asset;
+}
 -(void) setPlayButton:(UIButton*)button{
     _playButton = button;
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
