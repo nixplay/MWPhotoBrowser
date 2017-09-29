@@ -13,7 +13,6 @@
 #import "MWPhoto.h"
 #import "MWPhotoBrowserPrivate.h"
 #import "UIImage+MWPhotoBrowser.h"
-
 // Private methods and properties
 @interface MWZoomingScrollView () {
     
@@ -25,19 +24,19 @@
     UITapGestureRecognizer * _tap;
     
 }
-@property (strong, nonatomic) AVPlayer *player;
-@property (strong, nonatomic) AVPlayerItem *playerItem;
-@property (strong, nonatomic) AVPlayerLayer *playerLayer;
-@property (strong, nonatomic) NSTimer *playbackTimeCheckerTimer;
-@property (assign, nonatomic) CGFloat videoPlaybackPosition;
-@property (strong, nonatomic) UIView *videoPlayer;
-@property (strong, nonatomic) UIView *videoLayer;
-@property (strong, nonatomic) NSString *tempVideoPath;
-@property (strong, nonatomic) AVAsset *asset;
-@property (assign, nonatomic) BOOL isPlaying;
 @end
 
 @implementation MWZoomingScrollView
+@synthesize player = _player;
+@synthesize playerItem = _playerItem;
+@synthesize playerLayer = _playerLayer;
+@synthesize playbackTimeCheckerTimer = _playbackTimeCheckerTimer;
+@synthesize videoPlaybackPosition = _videoPlaybackPosition;
+@synthesize videoPlayer = _videoPlayer;
+@synthesize videoLayer = _videoLayer;
+@synthesize tempVideoPath = _tempVideoPath;
+@synthesize asset = _asset;
+@synthesize isPlaying = _isPlaying;
 @synthesize playButton = _playButton;
 - (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser {
     if ((self = [super init])) {
@@ -90,15 +89,15 @@
     [super didMoveToWindow]; // (does nothing by default)
     if (self.window == nil) {
         // YOUR CODE FOR WHEN UIVIEW IS REMOVED
-        self.isPlaying = NO;
-        [self.player seekToTime:CMTimeMake(0, 1)];
-        [self.player pause];
-        [self.player replaceCurrentItemWithPlayerItem:nil];
-        self.asset = nil;
-        self.player = nil;
-        self.playerLayer = nil;
-        self.videoLayer = nil;
-        self.videoPlayer = nil;
+        _isPlaying = NO;
+        [_player seekToTime:CMTimeMake(0, 1)];
+        [_player pause];
+        [_player replaceCurrentItemWithPlayerItem:nil];
+        _asset = nil;
+        _player = nil;
+        _playerLayer = nil;
+        _videoLayer = nil;
+        _videoPlayer = nil;
         
     }
 }
@@ -518,28 +517,28 @@
 
 -(void) setupVideoPreviewUrl:(NSURL*)url photoImageViewFrame:(CGRect)photoImageViewFrame{
     if(self.photo.isVideo){
-        self.asset = [AVAsset assetWithURL:url];
+        _asset = [AVAsset assetWithURL:url];
         
-        AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:self.asset];
+        AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
         
-        self.player = [AVPlayer playerWithPlayerItem:item];
-        self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-        self.playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
-        self.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+        _player = [AVPlayer playerWithPlayerItem:item];
+        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+        _playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
+        _player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
         
-        self.videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
-        self.videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
-        [self.playerLayer setFrame:CGRectZero];
-        [self.videoPlayer addSubview:self.videoLayer];
+        _videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
+        _videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
+        [_playerLayer setFrame:CGRectZero];
+        [_videoPlayer addSubview:_videoLayer];
         
-        self.videoLayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        _videoLayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         
-        self.videoPlayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
-        [self.videoLayer.layer addSublayer:self.playerLayer];
+        _videoPlayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        [_videoLayer.layer addSublayer:_playerLayer];
         
-        self.videoLayer.tag = 1;
+        _videoLayer.tag = 1;
         
-        self.videoPlaybackPosition = 0;
+        _videoPlaybackPosition = 0;
         
     }
     
@@ -571,7 +570,7 @@
             [self.player play];
             [self startPlaybackTimeChecker];
         }
-        self.isPlaying = !self.isPlaying;
+        _isPlaying = !_isPlaying;
         
     }
 }
@@ -579,14 +578,14 @@
 {
     [self stopPlaybackTimeChecker];
     
-    self.playbackTimeCheckerTimer = [NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(onPlaybackTimeCheckerTimer) userInfo:nil repeats:YES];
+    _playbackTimeCheckerTimer = [NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(onPlaybackTimeCheckerTimer) userInfo:nil repeats:YES];
 }
 
 - (void)stopPlaybackTimeChecker
 {
-    if (self.playbackTimeCheckerTimer) {
-        [self.playbackTimeCheckerTimer invalidate];
-        self.playbackTimeCheckerTimer = nil;
+    if (_playbackTimeCheckerTimer) {
+        [_playbackTimeCheckerTimer invalidate];
+        _playbackTimeCheckerTimer = nil;
     }
 }
 
@@ -595,26 +594,26 @@
 
 - (void)onPlaybackTimeCheckerTimer
 {
-    CMTime curTime = [self.player currentTime];
+    CMTime curTime = [_player currentTime];
     Float64 seconds = CMTimeGetSeconds(curTime);
     if (seconds < 0){
         seconds = 0; // this happens! dont know why.
     }
-    self.videoPlaybackPosition = seconds;
+    _videoPlaybackPosition = seconds;
     
     
     
-    if (self.videoPlaybackPosition >= CMTimeGetSeconds([self.asset duration])) {
-        [self.playButton setHidden:NO];
-        [self.player pause];
+    if (_videoPlaybackPosition >= CMTimeGetSeconds([_asset duration])) {
+        [_playButton setHidden:NO];
+        [_player pause];
         [self seekVideoToPos:0];
     }
 }
 
 - (void)seekVideoToPos:(CGFloat)pos
 {
-    self.videoPlaybackPosition = pos;
-    CMTime time = CMTimeMakeWithSeconds(self.videoPlaybackPosition, self.player.currentTime.timescale);
+    _videoPlaybackPosition = pos;
+    CMTime time = CMTimeMakeWithSeconds(_videoPlaybackPosition, _player.currentTime.timescale);
     //NSLog(@"seekVideoToPos time:%.2f", CMTimeGetSeconds(time));
     [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
 }
