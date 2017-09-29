@@ -44,7 +44,7 @@ static const CGFloat labelPadding = 10;
                                                 options:NSStringDrawingUsesLineFragmentOrigin
                                              attributes:@{NSFontAttributeName:self.font}
                                                 context:nil].size;
-    return CGSizeMake(size.width, textSize.height + labelPadding * 2);
+    return CGSizeMake(size.width, textSize.height + labelPadding * 2.5);
 }
 
 - (void)setupCaption {
@@ -64,7 +64,7 @@ static const CGFloat labelPadding = 10;
     if ([_photo respondsToSelector:@selector(caption)]) {
         self.text = [_photo caption] ? [_photo caption] : @" ";
     }
-    UIEdgeInsets myLabelInsets = {5, 10, 5, 10};
+    UIEdgeInsets myLabelInsets = {0, 10, 0, 10};
     [super drawTextInRect:UIEdgeInsetsInsetRect(self.frame, myLabelInsets)];
 //    [self addSubview:_label];
 //    [_label mas_makeConstraints:^(MASConstraintMaker *make) {
