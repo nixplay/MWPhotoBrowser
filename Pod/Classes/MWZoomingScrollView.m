@@ -142,12 +142,12 @@
         [self displayImage];
     } else {
         // Will be loading so show loading
-        [self showLoadingIndicator];
-    }
+            [self showLoadingIndicator];
+        }
     if(photo.isVideo){
-        
-        typeof(self) __weak weakSelf = self;
-        [self.photo getVideoURL:^(NSURL *url) {
+    
+    typeof(self) __weak weakSelf = self;
+    [self.photo getVideoURL:^(NSURL *url) {
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 // If the video is not playing anymore then bail
@@ -164,7 +164,7 @@
                 }
             });
         }];
-    }
+        }
 }
 
 // Get and display image
@@ -343,8 +343,8 @@
     
     // If it's a video then disable zooming
     if ([self displayingVideo]) {
-        self.maximumZoomScale = self.zoomScale;
-        self.minimumZoomScale = self.zoomScale;
+    self.maximumZoomScale = self.zoomScale;
+    self.minimumZoomScale = self.zoomScale;
     }
     
     // Layout
@@ -405,6 +405,7 @@
         if(self.videoPlayer != nil && self.videoLayer != nil && self.playerLayer != nil){
             
             self.videoLayer.frame = frame;
+            self.videoPlayer.frame = CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
             if(self.playerLayer.superlayer != nil){
                 [self.playerLayer removeFromSuperlayer];
             }
@@ -530,6 +531,7 @@
         
         _videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
         _videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
+        _videoPlayer.userInteractionEnabled = NO;
         [_playerLayer setFrame:CGRectZero];
         [_videoPlayer setBackgroundColor:[UIColor clearColor]];
         [self addSubview: _videoPlayer];
