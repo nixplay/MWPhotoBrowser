@@ -22,7 +22,6 @@
     DACircularProgressView *_loadingIndicator;
     UIImageView *_loadingError;
     UITapGestureRecognizer * _tap;
-    
 }
 @end
 
@@ -89,6 +88,9 @@
     [super didMoveToWindow]; // (does nothing by default)
     if (self.window == nil) {
         // YOUR CODE FOR WHEN UIVIEW IS REMOVED
+        if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
+            [_photo cancelAnyLoading];
+        }
         _isPlaying = NO;
         [_player seekToTime:CMTimeMake(0, 1)];
         [_player pause];
@@ -110,6 +112,9 @@
 
 - (void)prepareForReuse {
     [self hideImageFailure];
+    if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
+        [_photo cancelAnyLoading];
+    }
     self.photo = nil;
     self.captionView = nil;
     self.selectedButton = nil;
@@ -142,12 +147,12 @@
         [self displayImage];
     } else {
         // Will be loading so show loading
-            [self showLoadingIndicator];
-        }
+        [self showLoadingIndicator];
+    }
     if(photo.isVideo){
-    
-    typeof(self) __weak weakSelf = self;
-    [self.photo getVideoURL:^(NSURL *url) {
+        
+        typeof(self) __weak weakSelf = self;
+        [self.photo getVideoURL:^(NSURL *url) {
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 // If the video is not playing anymore then bail
@@ -164,7 +169,7 @@
                 }
             });
         }];
-        }
+    }
 }
 
 // Get and display image
@@ -245,10 +250,26 @@
 - (void)setProgressFromNotification:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSDictionary *dict = [notification object];
-        id <MWPhoto> photoWithProgress = [dict objectForKey:@"photo"];
-        if (photoWithProgress == self.photo) {
-            float progress = [[dict valueForKey:@"progress"] floatValue];
-            _loadingIndicator.progress = MAX(MIN(1, progress), 0);
+        if([dict objectForKey:@"photo"] != nil){
+            id <MWPhoto> photoWithProgress = [dict objectForKey:@"photo"];
+            if (photoWithProgress == self.photo) {
+                float progress = [[dict valueForKey:@"progress"] floatValue];
+                _loadingIndicator.progress = MAX(MIN(1, progress), 0);
+            }
+        }else  if([dict objectForKey:@"video"] != nil){
+            id <MWPhoto> photoWithProgress = [dict objectForKey:@"video"];
+            if (photoWithProgress == self.photo) {
+                float progress = [[dict valueForKey:@"progress"] floatValue];
+                if(progress < 1 ){
+                    _loadingIndicator.hidden = NO;
+                    _loadingIndicator.progress = MAX(MIN(1, progress), 0);
+                    _playButton.hidden = YES;
+                    
+                }else{
+                    _loadingIndicator.hidden = YES;
+                    _playButton.hidden = NO;
+                }
+            }
         }
     });
 }
@@ -343,8 +364,8 @@
     
     // If it's a video then disable zooming
     if ([self displayingVideo]) {
-    self.maximumZoomScale = self.zoomScale;
-    self.minimumZoomScale = self.zoomScale;
+        self.maximumZoomScale = self.zoomScale;
+        self.minimumZoomScale = self.zoomScale;
     }
     
     // Layout
@@ -405,7 +426,6 @@
         if(self.videoPlayer != nil && self.videoLayer != nil && self.playerLayer != nil){
             
             self.videoLayer.frame = frame;
-            self.videoPlayer.frame = CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
             if(self.playerLayer.superlayer != nil){
                 [self.playerLayer removeFromSuperlayer];
             }
@@ -531,7 +551,6 @@
         
         _videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
         _videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
-        _videoPlayer.userInteractionEnabled = NO;
         [_playerLayer setFrame:CGRectZero];
         [_videoPlayer setBackgroundColor:[UIColor clearColor]];
         [self addSubview: _videoPlayer];

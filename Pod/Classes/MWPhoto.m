@@ -118,12 +118,21 @@
 }
 
 - (void)getVideoURL:(void (^)(NSURL *url))completion {
-    if (_videoURL) {
-        completion(_videoURL);
-    } else if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
+    if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
         [self cancelVideoRequest]; // Cancel any existing
+        
         PHVideoRequestOptions *options = [PHVideoRequestOptions new];
         options.networkAccessAllowed = YES;
+        
+        options.progressHandler = ^(double progress, NSError* error, BOOL* stop, NSDictionary* info) {
+            NSLog(@"cacheAsset: %f", progress);
+            
+            NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  [NSNumber numberWithFloat:progress], @"progress",
+                                  self, @"video",
+                                  _assetVideoRequestID, "assetVideoRequestID",nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+        };
         typeof(self) __weak weakSelf = self;
         _assetVideoRequestID = [[PHImageManager defaultManager] requestAVAssetForVideo:_asset options:options resultHandler:^(AVAsset *asset, AVAudioMix *audioMix, NSDictionary *info) {
             
@@ -131,8 +140,11 @@
             typeof(self) strongSelf = weakSelf;
             if (!strongSelf) return;
             strongSelf->_assetVideoRequestID = PHInvalidImageRequestID;
-            if ([asset isKindOfClass:[AVURLAsset class]]) {
-                completion(((AVURLAsset *)asset).URL);
+             if ([asset isKindOfClass:[AVURLAsset class]] ){
+                 NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
+                 if(CMTimeGetSeconds(asset.duration) > 0){
+                     completion(((AVURLAsset *)asset).URL);
+                 }
             } else {
                 if(([asset isKindOfClass:[AVComposition class]] && ((AVComposition *)asset).tracks.count == 2)){
                     //slow motion videos. See Here: https://overflow.buffer.com/2016/02/29/slow-motion-video-ios/
@@ -192,6 +204,11 @@
             }
             
         }];
+    }else if (_videoURL) {
+        AVAsset *avasset = [AVAsset assetWithURL:_videoURL];
+        
+        NSLog(@"asset %f", CMTimeGetSeconds(avasset.duration));
+        completion(_videoURL);
     }
 }
 
