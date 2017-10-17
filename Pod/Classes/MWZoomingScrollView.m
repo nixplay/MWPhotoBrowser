@@ -142,6 +142,9 @@
         }
     }
     _photo = photo;
+    if(self.photo == nil){
+        return;
+    }
     UIImage *img = [_photoBrowser imageForPhoto:_photo];
     if (img) {
         [self displayImage];
@@ -279,6 +282,7 @@
 }
 
 - (void)showLoadingIndicator {
+    
     self.zoomScale = 0;
     self.minimumZoomScale = 0;
     self.maximumZoomScale = 0;
@@ -424,8 +428,8 @@
 -(void) setFrameToCenter:(CGRect)frame{
     if(self.photo.isVideo){
         if(self.videoPlayer != nil && self.videoLayer != nil && self.playerLayer != nil){
-            
-            self.videoLayer.frame = frame;
+            self.videoPlayer.frame = CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
+            self.videoLayer.frame = CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
             if(self.playerLayer.superlayer != nil){
                 [self.playerLayer removeFromSuperlayer];
             }
@@ -553,20 +557,35 @@
         _videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
         [_playerLayer setFrame:CGRectZero];
         [_videoPlayer setBackgroundColor:[UIColor clearColor]];
-        [self addSubview: _videoPlayer];
-        _videoLayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
-        
-        _videoPlayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        [_photoImageView addSubview: _videoPlayer];
+//        _videoLayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+//
+//        _videoPlayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         [_videoLayer.layer addSublayer:_playerLayer];
         
         _videoLayer.tag = 1;
         
         _videoPlaybackPosition = 0;
+
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(playerItemDidReachEnd:)
+                                                     name:AVPlayerItemDidPlayToEndTimeNotification
+                                                   object:item];
+
     }
     
 }
 
+-(void) playerItemDidReachEnd:(NSNotification *)notification {
+    
+    NSLog(@"IT REACHED THE END");
+    [self.player pause];
+    [self stopPlaybackTimeChecker];
+    [self playButton].hidden = NO;
+    self.videoPlayer.hidden = YES;
+    [self seekVideoToPos:0];
+}
 - (void) tapOnVideoLayer:(UITapGestureRecognizer *)tap
 {
     [self onVideoTapped];
@@ -585,6 +604,7 @@
             [self stopPlaybackTimeChecker];
             [self playButton].hidden = NO;
         }else {
+            self.videoPlayer.hidden = NO;
             if(self.videoLayer.superview == nil){
                 [self.videoPlayer addSubview:self.videoLayer];
             }
