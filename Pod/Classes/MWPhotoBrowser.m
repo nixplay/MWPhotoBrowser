@@ -1591,10 +1591,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             if (page.captionView) {
                 MWCaptionView *v = page.captionView;
                 // Pass any index, all we're interested in is the Y
-                //                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
-                //                captionFrame.origin.x = v.frame.origin.x; // Reset X
-                //                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
-                //                v.frame = captionFrame;
+                CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
+                captionFrame.origin.x = v.frame.origin.x; // Reset X
+                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, animatonOffset);
+                v.frame = captionFrame;
                 v.alpha = alpha;
             }
         }
