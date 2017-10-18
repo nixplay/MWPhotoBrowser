@@ -124,14 +124,18 @@
         PHVideoRequestOptions *options = [PHVideoRequestOptions new];
         options.networkAccessAllowed = YES;
         
-        options.progressHandler = ^(double progress, NSError* error, BOOL* stop, NSDictionary* info) {
+        options.progressHandler = ^(double progress, NSError *__nullable error, BOOL *stop, NSDictionary *__nullable info) {
             NSLog(@"cacheAsset: %f", progress);
-            
-            NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSNumber numberWithFloat:progress], @"progress",
-                                  self, @"video",
-                                  _assetVideoRequestID, "assetVideoRequestID",nil];
-            [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+            @try{
+                NSDictionary* dict = @{
+                                       @"progress": [NSNumber numberWithDouble:progress],
+                                       @"video" : self,
+                                       @"assetVideoRequestID" : @"_assetVideoRequestID"};
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+            }@catch(NSException *exc){
+                NSLog(@"NSException %@",exc.description);
+            }
         };
         typeof(self) __weak weakSelf = self;
         _assetVideoRequestID = [[PHImageManager defaultManager] requestAVAssetForVideo:_asset options:options resultHandler:^(AVAsset *asset, AVAudioMix *audioMix, NSDictionary *info) {
