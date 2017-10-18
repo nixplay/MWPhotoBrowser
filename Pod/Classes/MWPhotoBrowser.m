@@ -354,7 +354,9 @@
     [self updateNavigation];
     
     // Content offset
-    _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
+    if(SYSTEM_VERSION_LESS_THAN(@"11")){
+        _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
+    }
     [self tilePages];
     _performingLayout = NO;
     
@@ -610,7 +612,9 @@
     [self positionVideoLoadingIndicator];
     
     // Adjust contentOffset to preserve page location based on values collected prior to location
-    _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
+    if(SYSTEM_VERSION_LESS_THAN(@"11")){
+        _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
+    }
     [self didStartViewingPageAtIndex:_currentPageIndex]; // initial
     
     // Reset
@@ -1062,6 +1066,7 @@
 
 - (CGPoint)contentOffsetForPageAtIndex:(NSUInteger)index {
     CGFloat pageWidth = _pagingScrollView.bounds.size.width;
+    NSLog(@"pageWidth %f",pageWidth);
     CGFloat newOffset = index * pageWidth;
     return CGPointMake(newOffset, 0);
 }
