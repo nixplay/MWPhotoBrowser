@@ -13,7 +13,6 @@
 #import "MWPhoto.h"
 #import "MWPhotoBrowserPrivate.h"
 #import "UIImage+MWPhotoBrowser.h"
-#import "Masonry.h"
 // Private methods and properties
 @interface MWZoomingScrollView () {
     
@@ -429,8 +428,7 @@
 -(void) setFrameToCenter:(CGRect)frame{
     if(self.photo.isVideo){
         if(self.videoPlayer != nil && self.videoLayer != nil && self.playerLayer != nil){
-            
-            self.videoLayer.frame = frame;//CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
+            self.videoLayer.frame = frame;
             if(self.playerLayer.superlayer != nil){
                 [self.playerLayer removeFromSuperlayer];
             }
@@ -558,21 +556,7 @@
         _videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
         [_playerLayer setFrame:CGRectZero];
         [_videoPlayer setBackgroundColor:[UIColor clearColor]];
-        [self addSubview: _videoPlayer];
-        [_videoPlayer mas_makeConstraints:^(MASConstraintMaker *make) {
-            if(@available(iOS 11, *)){
-                make.bottom.equalTo(_videoPlayer.superview.mas_safeAreaLayoutGuide);
-            }else{
-                make.bottom.equalTo(_videoPlayer.superview.mas_bottom);
-            }
-            make.right.equalTo(_videoPlayer.superview.mas_right);
-            make.left.equalTo(_videoPlayer.superview.mas_left);
-            make.centerY.equalTo(_videoPlayer.superview.mas_centerY);
-            make.centerX.equalTo(_videoPlayer.superview.mas_centerX);
-        }];
-//        _videoLayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
-//
-//        _videoPlayer.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        [self addSubview:_videoPlayer];
         [_videoLayer.layer addSublayer:_playerLayer];
         
         _videoLayer.tag = 1;
@@ -596,7 +580,9 @@
     [self stopPlaybackTimeChecker];
     [self playButton].hidden = NO;
     self.videoPlayer.hidden = YES;
+    _photoImageView.hidden = NO;
     [self seekVideoToPos:0];
+    
 }
 - (void) tapOnVideoLayer:(UITapGestureRecognizer *)tap
 {
@@ -615,6 +601,7 @@
             [self.player pause];
             [self stopPlaybackTimeChecker];
             [self playButton].hidden = NO;
+            _photoImageView.hidden = NO;
         }else {
             self.videoPlayer.hidden = NO;
             if(self.videoLayer.superview == nil){
@@ -624,6 +611,7 @@
             
             [self.player play];
             [self startPlaybackTimeChecker];
+            _photoImageView.hidden = YES;
         }
         _isPlaying = !_isPlaying;
         
