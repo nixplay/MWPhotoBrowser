@@ -165,7 +165,7 @@
                 
                 if (url) {
                     ((MWPhoto*)strongSelf.photo).videoURL = url;
-                    [strongSelf setupVideoPreviewUrl:url photoImageViewFrame:self.frame];
+                    [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:self.frame];
                     
                 } else {
                     
@@ -541,10 +541,13 @@
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 }
 
--(void) setupVideoPreviewUrl:(NSURL*)url photoImageViewFrame:(CGRect)photoImageViewFrame{
+-(void) setupVideoPreviewUrl:(NSURL*)url avurlAsset:(AVURLAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
     if(self.photo.isVideo){
-        _asset = [AVAsset assetWithURL:url];
-        
+        if(avurlAsset != nil){
+            _asset = avurlAsset;
+        }else{
+            _asset = [AVAsset assetWithURL:url];
+        }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
         
         _player = [AVPlayer playerWithPlayerItem:item];
@@ -563,7 +566,7 @@
         
         _videoPlaybackPosition = 0;
 
-        
+        [self seekVideoToPos:0];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(playerItemDidReachEnd:)
                                                      name:AVPlayerItemDidPlayToEndTimeNotification
@@ -657,7 +660,7 @@
 {
     _videoPlaybackPosition = pos;
     CMTime time = CMTimeMakeWithSeconds(_videoPlaybackPosition, _player.currentTime.timescale);
-    //NSLog(@"seekVideoToPos time:%.2f", CMTimeGetSeconds(time));
+    //NSLog(@"seekVideoToPos time:%.2f", CMT\imeGetSeconds(time));
     [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
 }
 
