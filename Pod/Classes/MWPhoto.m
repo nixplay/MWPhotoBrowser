@@ -117,7 +117,7 @@
     self.isVideo = YES;
 }
 
-- (void)getVideoURL:(void (^)(NSURL *url))completion {
+- (void)getVideoURL:(void (^)(NSURL *url,AVURLAsset *__nullable avurlAsset))completion {
     if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
         [self cancelVideoRequest]; // Cancel any existing
         
@@ -147,7 +147,7 @@
              if ([asset isKindOfClass:[AVURLAsset class]] ){
                  NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
                  if(CMTimeGetSeconds(asset.duration) > 0){
-                     completion(((AVURLAsset *)asset).URL);
+                     completion(((AVURLAsset *)asset).URL,(AVURLAsset *)asset);
                  }
             } else {
                 if(([asset isKindOfClass:[AVComposition class]] && ((AVComposition *)asset).tracks.count == 2)){
@@ -161,7 +161,7 @@
                     NSLog(@"myPathDocs %@",myPathDocs);
                     NSURL *url = [NSURL fileURLWithPath:myPathDocs];
                     if([[NSFileManager defaultManager] fileExistsAtPath:myPathDocs]){
-                        completion(url);
+                        completion(url,nil);
                     }else{
                         //Begin slow mo video export
                         AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
@@ -193,9 +193,9 @@
                                 }
                                 if (exporter.status == AVAssetExportSessionStatusCompleted) {
                                     NSURL *URL = exporter.outputURL;
-                                    completion(URL);
+                                    completion(URL, nil);
                                 }else{
-                                    completion(nil);
+                                    completion(nil, nil);
                                 }
                             });
                         }];
@@ -203,7 +203,7 @@
                     
                     
                 }else{
-                    completion(nil);
+                    completion(nil, nil);
                 }
             }
             
@@ -212,7 +212,7 @@
         AVAsset *avasset = [AVAsset assetWithURL:_videoURL];
         
         NSLog(@"asset %f", CMTimeGetSeconds(avasset.duration));
-        completion(_videoURL);
+        completion(_videoURL, nil);
     }
 }
 

@@ -155,7 +155,7 @@
     if(photo.isVideo){
         
         typeof(self) __weak weakSelf = self;
-        [self.photo getVideoURL:^(NSURL *url) {
+        [self.photo getVideoURL:^(NSURL *url, AVURLAsset *__nullable avurlAsset) {
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 // If the video is not playing anymore then bail

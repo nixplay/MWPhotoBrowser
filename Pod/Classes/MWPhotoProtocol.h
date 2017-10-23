@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+@import AVKit;
 // Notifications
 #define MWPHOTO_LOADING_DID_END_NOTIFICATION @"MWPHOTO_LOADING_DID_END_NOTIFICATION"
 #define MWPHOTO_PROGRESS_NOTIFICATION @"MWPHOTO_PROGRESS_NOTIFICATION"
@@ -59,7 +59,7 @@
 
 // Video
 @property (nonatomic) BOOL isVideo;
-- (void)getVideoURL:(void (^)(NSURL *url))completion;
+- (void)getVideoURL:(void (^)(NSURL *url,AVURLAsset *__nullable avurlAsset))completion;
 
 // Return a caption string to be displayed over the image
 // Return nil to display no caption
