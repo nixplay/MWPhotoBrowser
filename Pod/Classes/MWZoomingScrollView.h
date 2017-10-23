@@ -60,4 +60,5 @@
 - (void)startPlaybackTimeChecker;
 - (void)stopPlaybackTimeChecker;
 - (void)seekVideoToPos:(CGFloat)pos;
+- (void)resetPlayer;
 @end
