@@ -1066,7 +1066,6 @@
 
 - (CGPoint)contentOffsetForPageAtIndex:(NSUInteger)index {
     CGFloat pageWidth = _pagingScrollView.bounds.size.width;
-    NSLog(@"pageWidth %f",pageWidth);
     CGFloat newOffset = index * pageWidth;
     return CGPointMake(newOffset, 0);
 }
