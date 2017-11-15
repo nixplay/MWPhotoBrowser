@@ -209,10 +209,8 @@
             
         }];
     }else if (_videoURL) {
-        AVAsset *avasset = [AVAsset assetWithURL:_videoURL];
-        
-        NSLog(@"asset %f", CMTimeGetSeconds(avasset.duration));
         completion(_videoURL, nil);
+        
     }
 }
 

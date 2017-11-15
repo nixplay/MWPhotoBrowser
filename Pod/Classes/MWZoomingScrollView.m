@@ -95,6 +95,7 @@
         [_player seekToTime:CMTimeMake(0, 1)];
         [_player pause];
         [_player replaceCurrentItemWithPlayerItem:nil];
+        [_asset cancelLoading];
         _asset = nil;
         _player = nil;
         _playerLayer = nil;
@@ -112,6 +113,7 @@
 
 - (void)prepareForReuse {
     [self hideImageFailure];
+    [_asset cancelLoading];
     if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
         [_photo cancelAnyLoading];
     }
@@ -155,23 +157,25 @@
     if(photo.isVideo){
         
         typeof(self) __weak weakSelf = self;
-        [self.photo getVideoURL:^(NSURL *url, AVURLAsset *__nullable avurlAsset) {
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                // If the video is not playing anymore then bail
+        dispatch_group_async(dispatch_group_create(), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [self.photo getVideoURL:^(NSURL *url, AVURLAsset *__nullable avurlAsset) {
                 
-                typeof(self) strongSelf = weakSelf;
-                if (!strongSelf) return;
-                
-                if (url) {
-                    ((MWPhoto*)strongSelf.photo).videoURL = url;
-                    [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:self.frame];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // If the video is not playing anymore then bail
                     
-                } else {
+                    typeof(self) strongSelf = weakSelf;
+                    if (!strongSelf) return;
                     
-                }
-            });
-        }];
+                    if (url) {
+                        ((MWPhoto*)strongSelf.photo).videoURL = url;
+                        [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:self.frame];
+                        
+                    } else {
+                        
+                    }
+                });
+            }];
+        });
     }
 }
 
@@ -549,7 +553,7 @@
             _asset = [AVAsset assetWithURL:url];
         }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
-        
+
         _player = [AVPlayer playerWithPlayerItem:item];
         _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
         _playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
