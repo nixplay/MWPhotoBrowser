@@ -92,6 +92,7 @@
             [_photo cancelAnyLoading];
         }
         _isPlaying = NO;
+        [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
         [_player seekToTime:CMTimeMake(0, 1)];
         [_player pause];
         [_player replaceCurrentItemWithPlayerItem:nil];
@@ -102,6 +103,7 @@
         _videoLayer = nil;
         _videoPlayer = nil;
         
+        
     }
 }
 - (void)dealloc {
@@ -109,6 +111,7 @@
         [_photo cancelAnyLoading];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
 }
 
 - (void)prepareForReuse {
