@@ -95,7 +95,7 @@
 }
 
 - (void)dealloc {
-//    [self clearCurrentVideo];
+    [self clearCurrentVideo];
     _pagingScrollView.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self releaseAllUnderlyingPhotos:NO];
@@ -473,7 +473,7 @@
         
         // State
         _viewIsActive = NO;
-//        [self clearCurrentVideo]; // Clear current playing video
+        [self clearCurrentVideo]; // Clear current playing video
         
         // Bar state / appearance
         [self restorePreviousNavBarAppearance:animated];
@@ -989,7 +989,7 @@
     
     // Handle video on page change
     if (!_rotating && index != _currentVideoIndex) {
-//        [self clearCurrentVideo];
+        [self clearCurrentVideo];
     }
     
     // Release images further away than +/-1
@@ -1351,14 +1351,16 @@
 //
 //}
 
-//- (void)clearCurrentVideo {
+- (void)clearCurrentVideo {
+    MWZoomingScrollView * page = [self pageDisplayedAtIndex: _currentPageIndex];
+    [page resetPlayer];
 ////    [_currentVideoPlayerViewController.moviePlayer stop];
 //    [_currentVideoLoadingIndicator removeFromSuperview];
 //    _currentVideoPlayerView = nil;
 //    _currentVideoLoadingIndicator = nil;
 //    [[self pageDisplayedAtIndex:_currentVideoIndex] playButton].hidden = NO;
 //    _currentVideoIndex = NSUIntegerMax;
-//}
+}
 
 - (void)setVideoLoadingIndicatorVisible:(BOOL)visible atPageIndex:(NSUInteger)pageIndex {
     if (_currentVideoLoadingIndicator && !visible) {
@@ -1394,7 +1396,7 @@
     
     
     // Clear video
-//    [self clearCurrentVideo];
+    [self clearCurrentVideo];
     
     // Init grid controller
     _gridController = [[MWGridViewController alloc] init];
