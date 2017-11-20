@@ -19,9 +19,9 @@ PODS:
     - Masonry
     - MBProgressHUD
     - SDWebImage
-  - SDWebImage (4.0.0):
-    - SDWebImage/Core (= 4.0.0)
-  - SDWebImage/Core (4.0.0)
+  - SDWebImage (4.2.2):
+    - SDWebImage/Core (= 4.2.2)
+  - SDWebImage/Core (4.2.2)
   - Specta (1.0.6)
 
 DEPENDENCIES:
@@ -29,7 +29,7 @@ DEPENDENCIES:
   - Expecta+Snapshots
   - FBSnapshotTestCase
   - MWPhotoBrowser (from `../`)
-  - SDWebImage (= 4.0.0)
+  - SDWebImage (= 4.2.2)
   - Specta
 
 EXTERNAL SOURCES:
@@ -44,10 +44,10 @@ SPEC CHECKSUMS:
   FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
-  MWPhotoBrowser: 206027e13966ecf43077e7e0c84e2c9d46cd3874
-  SDWebImage: 76a6348bdc74eb5a55dd08a091ef298e56b55e41
+  MWPhotoBrowser: c93a0fd151a8ff6a96b2c905f3a0b55248131e66
+  SDWebImage: 89a9d32cd520bbb46eb14e541d5109b3564af198
   Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465
 
-PODFILE CHECKSUM: d0cc63e9eda97147b937c128c286edd85bfbf357
+PODFILE CHECKSUM: 2662cea17507c6cf7e33097ae4ec92a526e928b0
 
 COCOAPODS: 1.3.1

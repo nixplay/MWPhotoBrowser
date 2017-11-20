@@ -3,7 +3,7 @@ use_frameworks!
 platform :ios, "9.0"
 target 'MWPhotoBrowser_Example'  do
   pod 'MWPhotoBrowser', :path => '../'
-  pod 'SDWebImage' , '4.0.0'
+  pod 'SDWebImage' , '4.2.2'
 end
 
 target 'MWPhotoBrowser_Tests' do
