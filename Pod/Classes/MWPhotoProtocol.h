@@ -59,11 +59,11 @@
 
 // Video
 @property (nonatomic) BOOL isVideo;
-- (void)getVideoURL:(void (^)(NSURL *url,AVURLAsset *__nullable avurlAsset))completion;
+- (void)getVideoURL:(void (^)(NSURL *_Null_unspecified url,AVURLAsset *__nullable avurlAsset))completion;
 
 // Return a caption string to be displayed over the image
 // Return nil to display no caption
-- (NSString *)caption;
+- (NSString *_Null_unspecified)caption;
 
 // Cancel any background loading of image data
 - (void)cancelAnyLoading;
