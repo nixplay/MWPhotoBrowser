@@ -1251,6 +1251,9 @@
 - (void)playButtonTapped:(id)sender {
     // Ignore if we're already playing a video
     if (_currentVideoIndex != NSUIntegerMax) {
+        if(_currentVideoPlayerView != nil){
+            [_currentVideoPlayerView play];
+        }
         return;
     }
     NSUInteger index = [self indexForPlayButton:sender];
@@ -1323,15 +1326,19 @@
 }
 - (void)_playVideoAtPhotoIndex:(NSUInteger)index {
     //TODO add slider progress bar
+    
     [_currentVideoPlayerView play];
+    typeof(self) __weak weakSelf = self;
+    _currentVideoPlayerView.playBlock = ^(BOOL isPlaying){
+        [weakSelf toggleControls];
+        [[weakSelf pageDisplayedAtIndex:weakSelf.currentIndex] playButton].hidden = isPlaying;
+    };
     _currentVideoLoadingIndicator.hidden = YES;
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:AVPlayerItemDidPlayToEndTimeNotification
-                                                  object:_currentVideoPlayerView.player];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(videoFinishedCallback:)
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
-                                               object:_currentVideoPlayerView.player];
+                                               object:_currentVideoPlayerView.player.currentItem];
 
 }
 
@@ -1340,7 +1347,7 @@
     // Remove observer
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:AVPlayerItemDidPlayToEndTimeNotification
-                                                  object:_currentVideoPlayerView.player];
+                                                  object:_currentVideoPlayerView.player.currentItem];
 
     // Clear up
     [self clearCurrentVideo];
