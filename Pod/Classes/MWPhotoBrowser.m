@@ -1311,15 +1311,37 @@
     
     
     MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
-    _currentVideoPlayerView = [[MWVideoPlayerView alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(page.frame), CGRectGetHeight(page.frame)) asset:avurlAsset];
-    [page addSubview:_currentVideoPlayerView];
-    [self _playVideoAtPhotoIndex:index];
+    
+    for (UIView* view in [page subviews]){
+        if([view isKindOfClass:[MWTapDetectingImageView class]]){
+
+            _currentVideoPlayerView = [[MWVideoPlayerView alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(view.frame), CGRectGetHeight(view.frame)) asset:avurlAsset];
+            [view addSubview:_currentVideoPlayerView];
+            
+            [_currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.edges.mas_offset(UIEdgeInsetsZero);
+            }];
+            
+            [self _playVideoAtPhotoIndex:index];
+        }
+    }
 }
 - (void)_playVideo:(NSURL *)videoURL atPhotoIndex:(NSUInteger)index {
     MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
-    _currentVideoPlayerView = [[MWVideoPlayerView alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(page.frame), CGRectGetHeight(page.frame)) url:videoURL];
-    [page addSubview:_currentVideoPlayerView];
-    [self _playVideoAtPhotoIndex:index];
+    
+    for (UIView* view in [page subviews]){
+        if([view isKindOfClass:[MWTapDetectingImageView class]]){
+            
+            _currentVideoPlayerView = [[MWVideoPlayerView alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(view.frame), CGRectGetHeight(view.frame)) url:videoURL];
+            [view addSubview:_currentVideoPlayerView];
+            
+            [_currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.edges.mas_offset(UIEdgeInsetsZero);
+            }];
+            
+            [self _playVideoAtPhotoIndex:index];
+        }
+    }
 }
 - (void)_playVideoAtPhotoIndex:(NSUInteger)index {
     //TODO add slider progress bar

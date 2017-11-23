@@ -28,8 +28,6 @@
 @property (nonatomic , strong) AVPlayerLayer *playerLayer;
 @property (nonatomic , strong) NSTimer *playbackTimeCheckerTimer;
 @property (assign, nonatomic) CGFloat videoPlaybackPosition;
-@property (nonatomic , strong) UIView *videoPlayer;
-@property (nonatomic , strong) UIView *videoLayer;
 @property (nonatomic , strong) NSString *tempVideoPath;
 @property (nonatomic , strong) AVAsset *asset;
 @property (assign, nonatomic) BOOL isPlaying;

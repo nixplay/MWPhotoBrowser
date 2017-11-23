@@ -21,8 +21,6 @@
 @synthesize playerLayer = _playerLayer;
 @synthesize playbackTimeCheckerTimer = _playbackTimeCheckerTimer;
 @synthesize videoPlaybackPosition = _videoPlaybackPosition;
-@synthesize videoPlayer = _videoPlayer;
-@synthesize videoLayer = _videoLayer;
 @synthesize tempVideoPath = _tempVideoPath;
 @synthesize asset = _asset;
 @synthesize isPlaying = _isPlaying;
@@ -40,14 +38,8 @@
         _playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
         _player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
         
-        _videoLayer = [[UIView alloc] initWithFrame:frame];
-        _videoPlayer = [[UIView alloc] initWithFrame:frame];
         [_playerLayer setFrame:frame];
-        [_videoPlayer setBackgroundColor:[UIColor clearColor]];
-        [self addSubview:_videoPlayer];
-        [_videoLayer.layer addSublayer:_playerLayer];
         
-        _videoLayer.tag = 1;
         
         _videoPlaybackPosition = 0;
         
@@ -60,9 +52,9 @@
     return self;
 }
 -(void) play{
-    if(self.videoLayer.superview == nil){
-        [self.videoPlayer addSubview:self.videoLayer];
-    }
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
+    [self.layer insertSublayer:self.playerLayer atIndex:0];
     [self.player play];
     [self startPlaybackTimeChecker];
     _isPlaying = YES;
@@ -71,6 +63,7 @@
     }
 }
 -(void) pause{
+    [self.playerLayer removeFromSuperlayer];
     [self.player pause];
     [self stopPlaybackTimeChecker];
     _isPlaying = NO;
@@ -96,8 +89,6 @@
         _asset = nil;
         _player = nil;
         _playerLayer = nil;
-        _videoLayer = nil;
-        _videoPlayer = nil;
     }
 }
 - (void)prepareForReuse {
@@ -105,6 +96,12 @@
 }
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
+}
+
+-(void)layoutSubviews{
+    [super layoutSubviews];
+    self.playerLayer.frame = self.bounds;
+    
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -125,7 +122,7 @@
     }
     [self.player pause];
     [self stopPlaybackTimeChecker];
-    self.videoPlayer.hidden = YES;
+    
     [self seekVideoToPos:0];
     
 }

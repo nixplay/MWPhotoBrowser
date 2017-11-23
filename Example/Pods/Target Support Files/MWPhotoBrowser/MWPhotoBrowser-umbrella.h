@@ -21,6 +21,7 @@
 #import "MWPhotoProtocol.h"
 #import "MWTapDetectingImageView.h"
 #import "MWTapDetectingView.h"
+#import "MWVideoPlayerView.h"
 #import "MWZoomingScrollView.h"
 #import "UIImage+MWPhotoBrowser.h"
 
