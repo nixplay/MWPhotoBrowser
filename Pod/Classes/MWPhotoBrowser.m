@@ -354,7 +354,8 @@
     [self updateNavigation];
     
     // Content offset
-    _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
+    if (!_pagingScrollView.dragging && !_pagingScrollView.decelerating)
+        _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
     [self tilePages];
     _performingLayout = NO;
     
@@ -610,7 +611,8 @@
     [self positionVideoLoadingIndicator];
     
     // Adjust contentOffset to preserve page location based on values collected prior to location
-    _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
+    if (!_pagingScrollView.dragging && !_pagingScrollView.decelerating)
+        _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
     
     [self didStartViewingPageAtIndex:_currentPageIndex]; // initial
     
