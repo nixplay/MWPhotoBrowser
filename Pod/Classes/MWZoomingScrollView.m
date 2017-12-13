@@ -157,29 +157,29 @@
         // Will be loading so show loading
         [self showLoadingIndicator];
     }
-    if(photo.isVideo){
-        
-        typeof(self) __weak weakSelf = self;
-        dispatch_group_async(dispatch_group_create(), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            [self.photo getVideoURL:^(NSURL *url, AVURLAsset *__nullable avurlAsset) {
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    // If the video is not playing anymore then bail
-                    
-                    typeof(self) strongSelf = weakSelf;
-                    if (!strongSelf) return;
-                    
-                    if (url) {
-                        ((MWPhoto*)strongSelf.photo).videoURL = url;
-                        [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:self.frame];
-                        
-                    } else {
-                        
-                    }
-                });
-            }];
-        });
-    }
+    //    if(photo.isVideo){
+    //
+    //        typeof(self) __weak weakSelf = self;
+    //        dispatch_group_async(dispatch_group_create(), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    //            [self.photo getVideoURL:^(NSURL *url, AVURLAsset *__nullable avurlAsset) {
+    //
+    //                dispatch_async(dispatch_get_main_queue(), ^{
+    //                    // If the video is not playing anymore then bail
+    //
+    //                    typeof(self) strongSelf = weakSelf;
+    //                    if (!strongSelf) return;
+    //
+    //                    if (url) {
+    //                        ((MWPhoto*)strongSelf.photo).videoURL = url;
+    //                        [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:self.frame];
+    //
+    //                    } else {
+    //
+    //                    }
+    //                });
+    //            }];
+    //        });
+    //    }
 }
 
 // Get and display image
@@ -556,7 +556,7 @@
             _asset = [AVAsset assetWithURL:url];
         }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
-
+        
         _player = [AVPlayer playerWithPlayerItem:item];
         _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
         _playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
@@ -567,18 +567,20 @@
         [_playerLayer setFrame:CGRectZero];
         [_videoPlayer setBackgroundColor:[UIColor clearColor]];
         [self addSubview:_videoPlayer];
+        
+        [self insertSubview:_videoPlayer atIndex:[[self subviews] indexOfObject:_photoImageView]];
         [_videoLayer.layer addSublayer:_playerLayer];
         
         _videoLayer.tag = 1;
         
         _videoPlaybackPosition = 0;
-
+        
         [self seekVideoToPos:0];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(playerItemDidReachEnd:)
                                                      name:AVPlayerItemDidPlayToEndTimeNotification
                                                    object:item];
-
+        
     }
     
 }
@@ -613,15 +615,38 @@
             [self playButton].hidden = NO;
             _photoImageView.hidden = NO;
         }else {
-            self.videoPlayer.hidden = NO;
-            if(self.videoLayer.superview == nil){
-                [self.videoPlayer addSubview:self.videoLayer];
+            typeof(self) __weak weakSelf = self;
+            if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
+                [self.photo getVideoURL:^(NSURL *url, AVURLAsset * _Nullable avurlAsset) {
+                    if(url){
+                        typeof(self) strongSelf = weakSelf;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                            [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:strongSelf.frame];
+                            strongSelf.videoPlayer.hidden = NO;
+                            if(strongSelf.videoLayer.superview == nil){
+                                [self.videoPlayer addSubview:strongSelf.videoLayer];
+                            }
+                            [strongSelf playButton].hidden = YES;
+                            
+                            [strongSelf.player play];
+                            [strongSelf startPlaybackTimeChecker];
+                            _photoImageView.hidden = YES;
+                        });
+                    }
+                }];
+                
+            }else{
+                self.videoPlayer.hidden = NO;
+                if(self.videoLayer.superview == nil){
+                    [self.videoPlayer addSubview:self.videoLayer];
+                }
+                [self playButton].hidden = YES;
+                
+                [self.player play];
+                [self startPlaybackTimeChecker];
+                _photoImageView.hidden = YES;
             }
-            [self playButton].hidden = YES;
-            
-            [self.player play];
-            [self startPlaybackTimeChecker];
-            _photoImageView.hidden = YES;
         }
         _isPlaying = !_isPlaying;
         
