@@ -11,7 +11,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "MWGridViewController.h"
 #import "MWZoomingScrollView.h"
-#import "MWVideoPlayerView.h"
+#import <ZFPlayer/ZFPlayer.h>
 @protocol MWPhotoBrowserProtectedMethod <NSObject>
 
 // Layout
@@ -112,7 +112,9 @@
     UIImage *_previousNavigationBarBackgroundImageLandscapePhone;
     
     // Video
-    MWVideoPlayerView *_currentVideoPlayerView;
+    ZFPlayerView *_currentVideoPlayerView;
+    ZFPlayerControlView *_controlView;
+
     NSUInteger _currentVideoIndex;
     UIActivityIndicatorView *_currentVideoLoadingIndicator;
     

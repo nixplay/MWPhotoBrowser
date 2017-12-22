@@ -371,7 +371,7 @@
     _previousButton = nil;
     _nextButton = nil;
     _progressHUD = nil;
-//    _currentVideoPlayerView = nil;
+    //    self.currentVideoPlayerView = nil;
     [super viewDidUnload];
 }
 
@@ -451,7 +451,7 @@
         if (_autoPlayOnAppear) {
             MWPhoto *photo = [self photoAtIndex:_currentPageIndex];
             if ([photo respondsToSelector:@selector(isVideo)] && photo.isVideo) {
-//                [self playVideoAtIndex:_currentPageIndex];
+                //                [self playVideoAtIndex:_currentPageIndex];
             }
         }
     }
@@ -1250,14 +1250,14 @@
 - (void)playButtonTapped:(id)sender {
     // Ignore if we're already playing a video
     if (_currentVideoIndex != NSUIntegerMax) {
-        if(_currentVideoPlayerView != nil){
-            [_currentVideoPlayerView play];
+        if(self.currentVideoPlayerView != nil){
+            [self.currentVideoPlayerView play];
         }
         return;
     }
     NSUInteger index = [self indexForPlayButton:sender];
     if (index != NSUIntegerMax) {
-        if (!_currentVideoPlayerView) {
+        if (self.currentVideoPlayerView.superview == nil) {
             [self playVideoAtIndex:index];
         }
     }
@@ -1279,12 +1279,12 @@
 - (void)playVideoAtIndex:(NSUInteger)index {
     id photo = [self photoAtIndex:index];
     if ([photo respondsToSelector:@selector(getVideoURL:)]) {
-
+        
         // Valid for playing
         [self clearCurrentVideo];
         _currentVideoIndex = index;
         [self setVideoLoadingIndicatorVisible:YES atPageIndex:index];
-
+        
         // Get video and play
         typeof(self) __weak weakSelf = self;
         [photo getVideoURL:^(NSURL * _Null_unspecified url, AVURLAsset * _Nullable avurlAsset) {
@@ -1296,90 +1296,142 @@
                     return;
                 }
                 if (url) {
-                    if(avurlAsset !=nil){
-                        [weakSelf _playVideoAsset:avurlAsset atPhotoIndex:index];
-                    }else{
-                        [weakSelf _playVideo:url atPhotoIndex:index];
-                    }
+                    [weakSelf _playVideo:url atPhotoIndex:index];
                 } else {
                     [weakSelf setVideoLoadingIndicatorVisible:NO atPageIndex:index];
                 }
             });
         }];
-
+        
     }
 }
-- (void)_playVideoAsset:(AVURLAsset *)avurlAsset atPhotoIndex:(NSUInteger)index {
-    
-    
-    MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
-    
-    for (UIView* view in [page subviews]){
-        if([view isKindOfClass:[MWTapDetectingImageView class]]){
-
-            _currentVideoPlayerView = [[MWVideoPlayerView alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(view.frame), CGRectGetHeight(view.frame)) asset:avurlAsset];
-            [view addSubview:_currentVideoPlayerView];
-            
-            [_currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.edges.mas_offset(UIEdgeInsetsZero);
-            }];
-            
-            [self _playVideoAtPhotoIndex:index];
-        }
+-(UIView*) videoSuperView{
+    if(_videoSuperView == nil){
+        CGRect frame = self.view.bounds;
+        _videoSuperView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame))];
+        _videoSuperView.userInteractionEnabled = NO;
     }
+    return _videoSuperView;
 }
+- (ZFPlayerView *)currentVideoPlayerView {
+    if (!_currentVideoPlayerView) {
+        _currentVideoPlayerView = [ZFPlayerView sharedPlayerView];
+        _currentVideoPlayerView.delegate = self;
+        _currentVideoPlayerView.cellPlayerOnCenter = NO;
+    }
+    return _currentVideoPlayerView;
+}
+
+- (ZFPlayerControlView *)controlView {
+    if (!_controlView) {
+        _controlView = [[ZFPlayerControlView alloc] init];
+        
+    }
+    return _controlView;
+}
+
+- (void)zf_playerBackAction{
+    
+}
+- (void)zf_playerDownload:(NSString *)url{
+}
+- (void)zf_playerControlViewWillShow:(UIView *)controlView isFullscreen:(BOOL)fullscreen{
+}
+- (void)zf_playerControlViewWillHidden:(UIView *)controlView isFullscreen:(BOOL)fullscreen{
+}
+//- (void)_playVideoAsset:(AVURLAsset *)avurlAsset atPhotoIndex:(NSUInteger)index {
+//
+//
+//    MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
+//
+//    for (UIView* view in [page subviews]){
+//        if([view isKindOfClass:[MWTapDetectingImageView class]]){
+//
+//
+//            [view addSubview:self.currentVideoPlayerView];
+//
+//            [self.currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
+//                make.edges.mas_offset(UIEdgeInsetsZero);
+//            }];
+//
+//            [self _playVideoAtPhotoIndex:index];
+//        }
+//    }
+//}
 - (void)_playVideo:(NSURL *)videoURL atPhotoIndex:(NSUInteger)index {
     MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
     
-    for (UIView* view in [page subviews]){
-        if([view isKindOfClass:[MWTapDetectingImageView class]]){
-            
-            _currentVideoPlayerView = [[MWVideoPlayerView alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(view.frame), CGRectGetHeight(view.frame)) url:videoURL];
-            [view addSubview:_currentVideoPlayerView];
-            
-            [_currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.edges.mas_offset(UIEdgeInsetsZero);
-            }];
-            
-            [self _playVideoAtPhotoIndex:index];
-        }
+    
+    MWPhoto* photo = [self photoAtIndex:index];
+    if(self.videoSuperView.superview != nil){
+        [self.videoSuperView removeFromSuperview];
     }
+    //    for (id view in [page subviews]){
+    //        if([view isKindOfClass:[MWTapDetectingImageView class]]){
+    [self.videoSuperView setFrame:[self frameForPageAtIndex:index]];
+    [_pagingScrollView addSubview:self.videoSuperView];
+    
+    ZFPlayerModel *playerModel = [[ZFPlayerModel alloc] init];
+    playerModel.videoURL         = videoURL;
+    playerModel.fatherView       = self.videoSuperView;
+    
+    if(photo.url != nil) {
+        playerModel.placeholderImageURLString = photo.url;
+    } else {
+        playerModel.placeholderImage = photo.underlyingImage;
+    }
+    
+    [self.currentVideoPlayerView playerControlView:self.controlView playerModel:playerModel];
+    self.currentVideoPlayerView.hasDownload = NO;
+    //            self.currentVideoPlayerView.userInteractionEnabled = NO;
+    [self.currentVideoPlayerView autoPlayTheVideo];
+    
+    
+    
+    [self _playVideoAtPhotoIndex:index];
+    //        }
+    //    }
 }
 - (void)_playVideoAtPhotoIndex:(NSUInteger)index {
     //TODO add slider progress bar
     
-    [_currentVideoPlayerView play];
-    typeof(self) __weak weakSelf = self;
-    _currentVideoPlayerView.playBlock = ^(BOOL isPlaying){
-        [weakSelf toggleControls];
-        [[weakSelf pageDisplayedAtIndex:weakSelf.currentIndex] playButton].hidden = isPlaying;
-    };
+    //    [self.currentVideoPlayerView play];
+    //    typeof(self) __weak weakSelf = self;
+    //    self.currentVideoPlayerView.playBlock = ^(BOOL isPlaying){
+    //        [weakSelf toggleControls];
+    //        [[weakSelf pageDisplayedAtIndex:weakSelf.currentIndex] playButton].hidden = isPlaying;
+    //    };
     _currentVideoLoadingIndicator.hidden = YES;
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(videoFinishedCallback:)
-                                                 name:AVPlayerItemDidPlayToEndTimeNotification
-                                               object:_currentVideoPlayerView.player.currentItem];
-
+    //    [[NSNotificationCenter defaultCenter] addObserver:self
+    //                                             selector:@selector(videoFinishedCallback:)
+    //                                                 name:AVPlayerItemDidPlayToEndTimeNotification
+    //                                               object:self.currentVideoPlayerView.player.currentItem];
+    
 }
 
 - (void)videoFinishedCallback:(NSNotification*)notification {
-
+    
     // Remove observer
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:AVPlayerItemDidPlayToEndTimeNotification
-                                                  object:_currentVideoPlayerView.player.currentItem];
-
+    //    [[NSNotificationCenter defaultCenter] removeObserver:self
+    //                                                    name:AVPlayerItemDidPlayToEndTimeNotification
+    //                                                  object:self.currentVideoPlayerView.player.currentItem];
+    
     // Clear up
     [self clearCurrentVideo];
 }
 
 - (void)clearCurrentVideo {
-    [_currentVideoPlayerView pause];
-    [_currentVideoPlayerView removeFromSuperview];
-    _currentVideoPlayerView = nil;
+    if(_videoSuperView != nil){
+        if(_videoSuperView.superview != nil){
+            [_videoSuperView removeFromSuperview];
+            _videoSuperView = nil;
+        }
+    }
+    [_currentVideoPlayerView resetPlayer];
+    
     [_currentVideoLoadingIndicator removeFromSuperview];
-
+    
     _currentVideoLoadingIndicator = nil;
     [[self pageDisplayedAtIndex:_currentVideoIndex] playButton].hidden = NO;
     _currentVideoIndex = NSUIntegerMax;
@@ -2014,4 +2066,5 @@
     return scrollView;
 }
 @end
+
 

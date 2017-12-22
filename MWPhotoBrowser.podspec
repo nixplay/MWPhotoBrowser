@@ -46,4 +46,5 @@ Pod::Spec.new do |s|
 		s.dependency 'SDWebImage'
 		s.dependency 'DeviceUtil'
 		s.dependency 'Masonry'
+		s.dependency 'ZFPlayer'
 end

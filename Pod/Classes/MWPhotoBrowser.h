@@ -10,7 +10,7 @@
 #import "MWPhoto.h"
 #import "MWPhotoProtocol.h"
 #import "MWCaptionView.h"
-
+#import <ZFPlayer/ZFPlayer.h>
 // Debug Logging
 #if 0 // Set to 1 to enable debug logging
 #define MWLog(x, ...) NSLog(x, ## __VA_ARGS__);
@@ -43,8 +43,11 @@
 - (NSMutableArray*)photoBrowser:(MWPhotoBrowser *)photoBrowser buildToolbarItems:(UIToolbar*)toolBar;
 @end
 
-@interface MWPhotoBrowser : UIViewController <UIScrollViewDelegate, UIActionSheetDelegate>
-
+@interface MWPhotoBrowser : UIViewController <UIScrollViewDelegate, UIActionSheetDelegate, ZFPlayerDelegate>
+{
+    //helper
+    UIView * _videoSuperView;
+}
 @property (nonatomic, weak) IBOutlet id<MWPhotoBrowserDelegate> delegate;
 @property (nonatomic) BOOL zoomPhotosToFill;
 @property (nonatomic) BOOL displayNavArrows;
