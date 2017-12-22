@@ -618,6 +618,9 @@
     
     // Reset
     _currentPageIndex = indexPriorToLayout;
+    if(self.videoSuperView.superview){
+        [self.videoSuperView setFrame:[self frameForPageAtIndex:_currentPageIndex]];
+    }
     _performingLayout = NO;
     
 }
@@ -1250,7 +1253,7 @@
 - (void)playButtonTapped:(id)sender {
     // Ignore if we're already playing a video
     if (_currentVideoIndex != NSUIntegerMax) {
-        if(self.currentVideoPlayerView != nil){
+        if(self.videoSuperView.superview != nil){
             [self.currentVideoPlayerView play];
         }
         return;
@@ -1313,6 +1316,16 @@
     }
     return _videoSuperView;
 }
+
+//- (MWVideoPlayerView *)currentVideoPlayerView {
+//    if (!_currentVideoPlayerView) {
+//        CGRect frame = [self frameForPageAtIndex:_currentPageIndex];
+//        _currentVideoPlayerView = [[MWVideoPlayerView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame)) url:nil];
+//
+//    }
+//    return _currentVideoPlayerView;
+//}
+
 - (ZFPlayerView *)currentVideoPlayerView {
     if (!_currentVideoPlayerView) {
         _currentVideoPlayerView = [ZFPlayerView sharedPlayerView];
@@ -1325,13 +1338,15 @@
 - (ZFPlayerControlView *)controlView {
     if (!_controlView) {
         _controlView = [[ZFPlayerControlView alloc] init];
-        
     }
     return _controlView;
 }
+- (void)zf_controlView:(UIView *)controlView repeatPlayAction:(UIButton *)sender{
+
+}
 
 - (void)zf_playerBackAction{
-    
+
 }
 - (void)zf_playerDownload:(NSString *)url{
 }
@@ -1339,27 +1354,30 @@
 }
 - (void)zf_playerControlViewWillHidden:(UIView *)controlView isFullscreen:(BOOL)fullscreen{
 }
-//- (void)_playVideoAsset:(AVURLAsset *)avurlAsset atPhotoIndex:(NSUInteger)index {
-//
-//
-//    MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
-//
-//    for (UIView* view in [page subviews]){
-//        if([view isKindOfClass:[MWTapDetectingImageView class]]){
-//
-//
-//            [view addSubview:self.currentVideoPlayerView];
-//
-//            [self.currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
-//                make.edges.mas_offset(UIEdgeInsetsZero);
-//            }];
-//
-//            [self _playVideoAtPhotoIndex:index];
-//        }
-//    }
-//}
-- (void)_playVideo:(NSURL *)videoURL atPhotoIndex:(NSUInteger)index {
+- (void)zf_playerReachEnd{
+    [self clearCurrentVideo];
+}
+- (void)_playVideoAsset:(AVURLAsset *)avurlAsset atPhotoIndex:(NSUInteger)index {
+
+
     MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
+
+    for (UIView* view in [page subviews]){
+        if([view isKindOfClass:[MWTapDetectingImageView class]]){
+
+
+            [view addSubview:self.currentVideoPlayerView];
+
+            [self.currentVideoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.edges.mas_offset(UIEdgeInsetsZero);
+            }];
+
+            [self _playVideoAtPhotoIndex:index];
+        }
+    }
+}
+- (void)_playVideo:(NSURL *)videoURL atPhotoIndex:(NSUInteger)index {
+//    MWZoomingScrollView * page = [self pageDisplayedAtIndex: index];
     
     
     MWPhoto* photo = [self photoAtIndex:index];
@@ -1369,12 +1387,12 @@
     //    for (id view in [page subviews]){
     //        if([view isKindOfClass:[MWTapDetectingImageView class]]){
     [self.videoSuperView setFrame:[self frameForPageAtIndex:index]];
-    [_pagingScrollView addSubview:self.videoSuperView];
+    
     
     ZFPlayerModel *playerModel = [[ZFPlayerModel alloc] init];
     playerModel.videoURL         = videoURL;
     playerModel.fatherView       = self.videoSuperView;
-    
+
     if(photo.url != nil) {
         playerModel.placeholderImageURLString = photo.url;
     } else {
@@ -1385,17 +1403,18 @@
     self.currentVideoPlayerView.hasDownload = NO;
     //            self.currentVideoPlayerView.userInteractionEnabled = NO;
     [self.currentVideoPlayerView autoPlayTheVideo];
-    
-    
+
+//    [self.videoSuperView addSubview:self.currentVideoPlayerView];
     
     [self _playVideoAtPhotoIndex:index];
     //        }
     //    }
+    [_pagingScrollView addSubview:self.videoSuperView];
 }
 - (void)_playVideoAtPhotoIndex:(NSUInteger)index {
     //TODO add slider progress bar
     
-    //    [self.currentVideoPlayerView play];
+//        [self.currentVideoPlayerView play];
     //    typeof(self) __weak weakSelf = self;
     //    self.currentVideoPlayerView.playBlock = ^(BOOL isPlaying){
     //        [weakSelf toggleControls];
@@ -1737,7 +1756,17 @@
 - (BOOL)areControlsHidden { return (_toolbar.alpha == 0); }
 - (void)hideControls { [self setControlsHidden:YES animated:YES permanent:NO]; }
 - (void)showControls { [self setControlsHidden:NO animated:YES permanent:NO]; }
-- (void)toggleControls { [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO]; }
+- (void)toggleControls {
+//    if(self.videoSuperView.superview != nil){
+//        if(![self.currentVideoPlayerView isPauseByUser]){
+//            [self.currentVideoPlayerView pause];
+//        }else{
+//            [self.currentVideoPlayerView play];
+//        }
+//    }
+    [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO];
+    
+}
 
 #pragma mark - Properties
 
@@ -2011,17 +2040,19 @@
 
 - (BOOL)shouldAutorotate
 {
-    return NO;
+    return YES;
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-    return 1 << UIInterfaceOrientationPortrait;
+    return 1 << UIInterfaceOrientationPortrait | 1 << UIInterfaceOrientationLandscapeLeft | 1 << UIInterfaceOrientationLandscapeRight;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return (interfaceOrientation == UIInterfaceOrientationPortrait ||
+            interfaceOrientation == UIInterfaceOrientationLandscapeRight ||
+            interfaceOrientation == UIInterfaceOrientationLandscapeLeft );
 }
 - (NSString*)getDeviceName
 {
