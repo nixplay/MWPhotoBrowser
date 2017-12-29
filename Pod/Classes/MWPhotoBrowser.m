@@ -1147,16 +1147,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             [_gridController.collectionView reloadData];
         }
         if (_gridController.selectionMode) {
-            self.title = NSLocalizedString(@"SELECT_PHOTOS",nil);
-//            self.title = NSLocalizedStringFromTableInBundle(@"Select Photos", @"MWPhotoBrowser", [NSBundle bundleForClass:MWPhotoBrowser.class], @"Select Photos");
+            self.title = NSLocalizedStringFromTableInBundle(@"Select Photos", @"MWPhotoBrowser", [NSBundle bundleForClass:MWPhotoBrowser.class], @"Select Photos");
         } else {
             NSString *photosText;
             if (numberOfPhotos == 1) {
-                self.title = NSLocalizedString(@"PHOTO",nil);
-//                photosText = NSLocalizedStringFromTableInBundle(@"photo", @"MWPhotoBrowser", [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: '1 photo'");
+                photosText = NSLocalizedStringFromTableInBundle(@"photo", @"MWPhotoBrowser", [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: '1 photo'");
             } else {
-                self.title = NSLocalizedString(@"PHOTOS",nil);
-//                photosText = NSLocalizedStringFromTableInBundle(@"photos", @"MWPhotoBrowser" , [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: '3 photos'");
+                photosText = NSLocalizedStringFromTableInBundle(@"photos", @"MWPhotoBrowser" , [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: '3 photos'");
             }
             self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
         }
@@ -1164,8 +1161,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
             self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
         } else {
-            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"OF", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
-//            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedStringFromTableInBundle(@"of", @"MWPhotoBrowser" , [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedStringFromTableInBundle(@"of", @"MWPhotoBrowser" , [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
         }
     } else {
         self.title = nil;
