@@ -231,19 +231,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if(self.navigationItem.leftBarButtonItem == NULL){
             self.navigationItem.leftBarButtonItem = _doneButton;
         }
-        
-        //        NSString* selectionString =  _displaySelectionButtons ?  NSLocalizedString(@"Cancel", nil) : NSLocalizedString(@"Select", nil);
-        //        _selectButton = [[UIBarButtonItem alloc] initWithTitle:selectionString style:UIBarButtonItemStylePlain target:self action:@selector(selectButtonPressed:)];
-        //        // Set appearance
-        //        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-        //        [_selectButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsCompact];
-        //        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-        //        [_selectButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsCompactPrompt];
-        //        [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
-        //        [_selectButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
-        //        if(self.navigationItem.rightBarButtonItem == NULL){
-        //            self.navigationItem.rightBarButtonItem = _selectButton;
-        //        }
+
         
     } else {
         // We're not first so show back button
@@ -1159,13 +1147,14 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             [_gridController.collectionView reloadData];
         }
         if (_gridController.selectionMode) {
-            self.title = NSLocalizedString(@"Select Photos", nil);
+            
+            self.title = NSLocalizedStringFromTableInBundle(@"Select Photos", @"MWPhotoBrowser", [NSBundle bundleForClass:MWPhotoBrowser.class], @"Select Photos");
         } else {
             NSString *photosText;
             if (numberOfPhotos == 1) {
-                photosText = NSLocalizedString(@"photo", @"Used in the context: '1 photo'");
+                photosText = NSLocalizedStringFromTableInBundle(@"photo", @"MWPhotoBrowser", [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: '1 photo'");
             } else {
-                photosText = NSLocalizedString(@"photos", @"Used in the context: '3 photos'");
+                photosText = NSLocalizedStringFromTableInBundle(@"photos", @"MWPhotoBrowser" , [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: '3 photos'");
             }
             self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
         }
@@ -1173,7 +1162,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
             self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
         } else {
-            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedStringFromTableInBundle(@"of", @"MWPhotoBrowser" , [NSBundle bundleForClass:MWPhotoBrowser.class], @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
         }
     } else {
         self.title = nil;
@@ -1698,49 +1687,6 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         }
     }
 }
-
-//- (void)selectButtonPressed:(id)sender {
-//
-//    if(!_displaySelectionButtons){
-//        _displaySelectionButtons = YES;
-//        [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
-//
-//        [self createSelectionModeBarButton];
-//    }else{
-//        [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
-//        _displaySelectionButtons = NO;
-//        if(_toolbar.superview != nil){
-//            [_toolbar removeFromSuperview];
-//        }
-//
-//    }
-//    if (_gridController) {
-//        _gridController.selectionMode = _displaySelectionButtons;
-//        if(_gridController.selectionMode){
-//
-//
-//            [_gridController.collectionView reloadData];
-//
-////            [_selectButton setTitle:NSLocalizedString(@"Cancel", nil)];
-////            _displaySelectionButtons = YES;
-////            [self createSelectionModeBarButton];
-//
-//
-//        }else{
-////            [_selectButton setTitle:NSLocalizedString(@"Select", nil)];
-//            [_gridController.collectionView reloadData];
-////            _displaySelectionButtons = NO;
-////            if(_toolbar.superview != nil){
-////                [_toolbar removeFromSuperview];
-////            }
-//
-//        }
-//        return;
-//    }else{
-//        [self updateVisiblePageStates];
-//    }
-//
-//}
 
 -(void) createSelectionModeBarButton{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){

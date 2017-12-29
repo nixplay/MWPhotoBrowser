@@ -32,6 +32,7 @@ Pod::Spec.new do |s|
   s.resource_bundles = {
     'MWPhotoBrowser' => ['Pod/Assets/*.png']
   }
+  s.resources = "Pod/Classes/*.lproj"
   s.requires_arc = true
 
   s.frameworks = 'ImageIO', 'QuartzCore', 'AssetsLibrary', 'MediaPlayer'
