@@ -27,10 +27,10 @@ Pod::Spec.new do |s|
 		:git => 'https://github.com/nixplay/MWPhotoBrowser.git',
 		:tag => '2.2.0'
 	}
-	s.platform = :ios, '7.0'
+	s.platform = :ios, '9.0'
 	s.source_files = 'Pod/Classes/**/*'
 	s.resource_bundles = {
-		'MWPhotoBrowser' => ['Pod/Assets/*.png']
+		'MWPhotoBrowser' => ['Pod/Assets/*.png', 'Pod/Assets/*.lproj']
 	}
 	s.requires_arc = true
 
