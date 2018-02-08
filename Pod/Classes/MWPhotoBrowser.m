@@ -1133,7 +1133,9 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     // Hide controls when dragging begins
-    [self setControlsHidden:YES animated:YES permanent:NO];
+    if([scrollView isEqual: _pagingScrollView]){
+        [self setControlsHidden:YES animated:YES permanent:NO];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -1607,8 +1609,13 @@
                 v.frame = newFrame;
             }
         }
+        if([self.delegate respondsToSelector:@selector(photoBrowser:controlsHidden:animated:)]){
+            [self.delegate photoBrowser:self controlsHidden:hidden animated:YES];
+        }
         
-    } completion:^(BOOL finished) {}];
+    } completion:^(BOOL finished) {
+        
+    }];
     
     // Control hiding timer
     // Will cancel existing timer but only begin hiding if

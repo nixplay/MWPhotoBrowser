@@ -41,6 +41,7 @@
 - (BOOL)photoBrowserSelectionMode;
 - (BOOL)photoBrowser:(MWPhotoBrowser *)photoBrowser hideToolbar:(BOOL)hide;
 - (NSMutableArray*)photoBrowser:(MWPhotoBrowser *)photoBrowser buildToolbarItems:(UIToolbar*)toolBar;
+- (void)photoBrowser:(MWPhotoBrowser *)photoBrowser controlsHidden:(BOOL)hidden animated:(BOOL)animated; 
 @end
 
 @interface MWPhotoBrowser : UIViewController <UIScrollViewDelegate, UIActionSheetDelegate>
