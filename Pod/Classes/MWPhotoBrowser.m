@@ -978,6 +978,7 @@
     
     // Handle video on page change
     if (!_rotating && index != _currentVideoIndex) {
+        _currentVideoIndex = index;
         [self clearCurrentVideo];
     }
     
