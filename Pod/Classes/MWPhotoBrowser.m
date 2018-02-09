@@ -78,6 +78,7 @@
     _startOnGrid = NO;
     _enableSwipeToDismiss = YES;
     _delayToHideElements = 5;
+    _allowHideControlsAfterDelay = NO;
     _visiblePages = [[NSMutableSet alloc] init];
     _recycledPages = [[NSMutableSet alloc] init];
     _photos = [[NSMutableArray alloc] init];
@@ -1134,7 +1135,7 @@
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     // Hide controls when dragging begins
     if([scrollView isEqual: _pagingScrollView]){
-        [self setControlsHidden:YES animated:YES permanent:NO];
+//        [self setControlsHidden:YES animated:YES permanent:NO];
     }
 }
 
@@ -1541,6 +1542,7 @@
         if (!_isVCBasedStatusBarAppearance) {
             
             // Non-view controller based
+            
             [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:animated ? UIStatusBarAnimationSlide : UIStatusBarAnimationNone];
             
         } else {
@@ -1650,7 +1652,11 @@
 
 // Enable/disable control visiblity timer
 - (void)hideControlsAfterDelay {
-    if (![self areControlsHidden]) {
+//    if (![self areControlsHidden]) {
+//        [self cancelControlHiding];
+//        _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
+//    }
+    if (![self areControlsHidden] && _allowHideControlsAfterDelay) {
         [self cancelControlHiding];
         _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
     }
