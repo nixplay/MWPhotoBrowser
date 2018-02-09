@@ -1652,10 +1652,6 @@
 
 // Enable/disable control visiblity timer
 - (void)hideControlsAfterDelay {
-//    if (![self areControlsHidden]) {
-//        [self cancelControlHiding];
-//        _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
-//    }
     if (![self areControlsHidden] && _allowHideControlsAfterDelay) {
         [self cancelControlHiding];
         _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
