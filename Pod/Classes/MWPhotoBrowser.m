@@ -79,6 +79,7 @@
     _enableSwipeToDismiss = YES;
     _delayToHideElements = 5;
     _allowHideControlsAfterDelay = NO;
+    _allowHideNavigationBar = NO;
     _visiblePages = [[NSMutableSet alloc] init];
     _recycledPages = [[NSMutableSet alloc] init];
     _photos = [[NSMutableArray alloc] init];
@@ -1582,7 +1583,7 @@
         CGFloat alpha = hidden ? 0 : 1;
         
         // Nav bar slides up on it's own on iOS 7+
-        [self.navigationController.navigationBar setAlpha:alpha];
+        if(_allowHideNavigationBar)[self.navigationController.navigationBar setAlpha:alpha];
         
         // Toolbar
         //        _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
