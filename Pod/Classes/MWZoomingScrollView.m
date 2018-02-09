@@ -616,6 +616,7 @@
             [self stopPlaybackTimeChecker];
             [self playButton].hidden = NO;
             _photoImageView.hidden = NO;
+            _isPlaying = NO;
         }else {
             typeof(self) __weak weakSelf = self;
             if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
