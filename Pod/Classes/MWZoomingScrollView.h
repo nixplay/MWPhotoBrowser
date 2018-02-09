@@ -14,7 +14,7 @@
 @import AVFoundation;
 @class MWPhotoBrowser, MWPhoto, MWCaptionView;
 
-@protocol MWZoomingScrollView <NSObject>
+@protocol MWZoomingScrollViewProtocol <NSObject>
 @required
 - (void)onPlaybackTimeCheckerTimer;
 - (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser;
@@ -33,7 +33,7 @@
 - (void)resetPlayer;
 @end
 
-@interface MWZoomingScrollView : UIScrollView <MWZoomingScrollView, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
+@interface MWZoomingScrollView : UIScrollView <MWZoomingScrollViewProtocol, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
 @protected
     AVPlayer *player;
     AVPlayerItem *playerItem;
