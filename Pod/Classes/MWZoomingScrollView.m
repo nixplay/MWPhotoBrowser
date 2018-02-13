@@ -274,11 +274,9 @@
                 if(progress < 1 ){
                     _loadingIndicator.hidden = NO;
                     _loadingIndicator.progress = MAX(MIN(1, progress), 0);
-                    _playButton.hidden = YES;
                     
                 }else{
                     _loadingIndicator.hidden = YES;
-                    _playButton.hidden = NO;
                 }
             }
         }
@@ -582,7 +580,7 @@
                                                  selector:@selector(playerItemDidReachEnd:)
                                                      name:AVPlayerItemDidPlayToEndTimeNotification
                                                    object:item];
-        
+         self.playButton.hidden = NO;
     }
     
 }
