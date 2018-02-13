@@ -51,7 +51,7 @@
 // You should release any underlying (possibly large and decompressed) image data
 // as long as the image can be re-loaded (from cache, file, or URL)
 - (void)unloadUnderlyingImage;
-
+- (void)imageLoadingComplete;
 @optional
 
 // If photo is empty, in which case, don't show loading error icons

@@ -19,6 +19,7 @@
     id <SDWebImageOperation> _webImageOperation;
     PHImageRequestID _assetRequestID;
     PHImageRequestID _assetVideoRequestID;
+    AVAssetExportSession *exporter;
     
 }
 
@@ -144,11 +145,11 @@
             typeof(self) strongSelf = weakSelf;
             if (!strongSelf) return;
             strongSelf->_assetVideoRequestID = PHInvalidImageRequestID;
-             if ([asset isKindOfClass:[AVURLAsset class]] ){
-                 NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
-                 if(CMTimeGetSeconds(asset.duration) > 0){
-                     completion(((AVURLAsset *)asset).URL,(AVURLAsset *)asset);
-                 }
+            if ([asset isKindOfClass:[AVURLAsset class]] ){
+                NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
+                if(CMTimeGetSeconds(asset.duration) > 0){
+                    completion(((AVURLAsset *)asset).URL,(AVURLAsset *)asset);
+                }
             } else {
                 if(([asset isKindOfClass:[AVComposition class]] && ((AVComposition *)asset).tracks.count == 2)){
                     //slow motion videos. See Here: https://overflow.buffer.com/2016/02/29/slow-motion-video-ios/
@@ -160,45 +161,80 @@
                     NSString *myPathDocs =  [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.mov", [[_asset.localIdentifier componentsSeparatedByString:@"/"] objectAtIndex:0]]];
                     NSLog(@"myPathDocs %@",myPathDocs);
                     NSURL *url = [NSURL fileURLWithPath:myPathDocs];
+                    
                     if([[NSFileManager defaultManager] fileExistsAtPath:myPathDocs]){
-                        completion(url,nil);
+                        completion(url,[AVURLAsset assetWithURL:url]);
+                        
                     }else{
                         //Begin slow mo video export
-                        AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
+                        exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
                         exporter.outputURL = url;
                         exporter.outputFileType = AVFileTypeQuickTimeMovie;
                         exporter.shouldOptimizeForNetworkUse = YES;
+                        dispatch_semaphore_t sessionWaitSemaphore = dispatch_semaphore_create(0);
                         
-                        [exporter exportAsynchronouslyWithCompletionHandler:^{
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                switch(exporter.status){
-                                    case AVAssetExportSessionStatusUnknown:
-                                        NSLog(@"AVAssetExportSessionStatusUnknown");
-                                        break;
-                                    case AVAssetExportSessionStatusWaiting:
-                                        NSLog(@"AVAssetExportSessionStatusWaiting");
-                                        break;
-                                    case AVAssetExportSessionStatusExporting:
-                                        NSLog(@"AVAssetExportSessionStatusExporting");
-                                        break;
-                                    case AVAssetExportSessionStatusCompleted:
-                                        NSLog(@"AVAssetExportSessionStatusCompleted");
-                                        break;
-                                    case AVAssetExportSessionStatusFailed:
-                                        NSLog(@"AVAssetExportSessionStatusFailed %@",exporter.error.localizedDescription);
-                                        break;
-                                    case AVAssetExportSessionStatusCancelled:
-                                        NSLog(@"AVAssetExportSessionStatusCancelled");
-                                        break;
-                                }
-                                if (exporter.status == AVAssetExportSessionStatusCompleted) {
+                        void (^completionHandler)(void) = ^(void)
+                        {
+                            dispatch_semaphore_signal(sessionWaitSemaphore);
+                        };
+                        
+                        [exporter exportAsynchronouslyWithCompletionHandler: completionHandler];
+                        
+                        do {
+                            dispatch_time_t dispatchTime = DISPATCH_TIME_FOREVER;  // if we dont want progress, we will wait until it finishes.
+                            dispatchTime = getDispatchTimeFromSeconds((float)1.0);
+                            double progress = [exporter progress] ;
+                            NSLog(@"cacheAsset: %f", progress);
+                            @try{
+                                NSDictionary* dict = @{
+                                                       @"progress": [NSNumber numberWithDouble:progress],
+                                                       @"video" : self,
+                                                       @"assetVideoRequestID" : @"_assetVideoRequestID"};
+                                
+                                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+                            }@catch(NSException *exc){
+                                NSLog(@"NSException %@",exc.description);
+                            }
+                            
+                            dispatch_semaphore_wait(sessionWaitSemaphore, dispatchTime);
+                        } while( [exporter status] < AVAssetExportSessionStatusCompleted );
+                        
+                        switch(exporter.status){
+                            case AVAssetExportSessionStatusUnknown:
+                                NSLog(@"AVAssetExportSessionStatusUnknown");
+                                completion(nil, nil);
+                                break;
+                            case AVAssetExportSessionStatusWaiting:
+                                NSLog(@"AVAssetExportSessionStatusWaiting");
+                                break;
+                            case AVAssetExportSessionStatusExporting:
+                                NSLog(@"AVAssetExportSessionStatusExporting");
+                                break;
+                            case AVAssetExportSessionStatusCompleted:
+                                NSLog(@"AVAssetExportSessionStatusCompleted");
+                            {
                                     NSURL *URL = exporter.outputURL;
-                                    completion(URL, nil);
-                                }else{
-                                    completion(nil, nil);
-                                }
-                            });
-                        }];
+                                    completion(URL, [AVURLAsset assetWithURL:URL]);
+                                NSDictionary* dict = @{
+                                                       @"progress": [NSNumber numberWithDouble:1],
+                                                       @"video" : self,
+                                                       @"assetVideoRequestID" : @"_assetVideoRequestID"};
+                                
+                                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+                                
+                            }
+                                break;
+                            case AVAssetExportSessionStatusFailed:
+                                NSLog(@"AVAssetExportSessionStatusFailed %@",exporter.error.localizedDescription);
+                                completion(nil, nil);
+                                break;
+                            case AVAssetExportSessionStatusCancelled:
+                                NSLog(@"AVAssetExportSessionStatusCancelled");
+                                completion(nil, nil);
+                                break;
+                        }
+                        
+                        
                     }
                     
                     
@@ -212,6 +248,11 @@
         completion(_videoURL, nil);
         
     }
+}
+static dispatch_time_t getDispatchTimeFromSeconds(float seconds) {
+    long long milliseconds = seconds * 1000.0;
+    dispatch_time_t waitTime = dispatch_time( DISPATCH_TIME_NOW, 1000000LL * milliseconds );
+    return waitTime;
 }
 
 #pragma mark - MWPhoto Protocol Methods
@@ -373,7 +414,6 @@
                               self, @"photo", nil];
         [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
     };
-    
     _assetRequestID = [imageManager requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:options resultHandler:^(UIImage *result, NSDictionary *info) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.underlyingImage = result;
@@ -406,6 +446,9 @@
     if (_webImageOperation != nil) {
         [_webImageOperation cancel];
         _loadingInProgress = NO;
+    }
+    if(exporter){
+        [exporter cancelExport];
     }
     [self cancelImageRequest];
     [self cancelVideoRequest];
