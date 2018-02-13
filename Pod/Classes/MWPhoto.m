@@ -118,7 +118,7 @@
     self.isVideo = YES;
 }
 
-- (void)getVideoURL:(void (^)(NSURL *url,AVURLAsset *__nullable avurlAsset))completion {
+- (void)getVideoURL:(void (^)(NSURL *url, AVAsset *__nullable avurlAsset))completion {
     if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
         [self cancelVideoRequest]; // Cancel any existing
         
@@ -145,12 +145,17 @@
             typeof(self) strongSelf = weakSelf;
             if (!strongSelf) return;
             strongSelf->_assetVideoRequestID = PHInvalidImageRequestID;
-            if ([asset isKindOfClass:[AVURLAsset class]] ){
+//            if ([asset isKindOfClass:[AVURLAsset class]] ){
                 NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
                 if(CMTimeGetSeconds(asset.duration) > 0){
-                    completion(((AVURLAsset *)asset).URL,(AVURLAsset *)asset);
+                    if ([asset isKindOfClass:[AVComposition class]] ){
+                        completion(nil,asset);
+                    }else{
+                        completion(((AVURLAsset *)asset).URL,asset);
+                    }
                 }
-            } else {
+//            }
+            /*else {
                 if(([asset isKindOfClass:[AVComposition class]] && ((AVComposition *)asset).tracks.count == 2)){
                     //slow motion videos. See Here: https://overflow.buffer.com/2016/02/29/slow-motion-video-ios/
                     
@@ -165,7 +170,7 @@
                     if([[NSFileManager defaultManager] fileExistsAtPath:myPathDocs]){
                         completion(url,[AVURLAsset assetWithURL:url]);
                         
-                    }else{
+                    }   else{
                         //Begin slow mo video export
                         exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
                         exporter.outputURL = url;
@@ -237,11 +242,12 @@
                         
                     }
                     
-                    
-                }else{
+             
+                }
+                                else{
                     completion(nil, nil);
                 }
-            }
+            }*/
             
         }];
     }else if (_videoURL) {

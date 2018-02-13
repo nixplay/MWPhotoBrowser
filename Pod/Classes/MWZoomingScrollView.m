@@ -274,9 +274,10 @@
                 if(progress < 1 ){
                     _loadingIndicator.hidden = NO;
                     _loadingIndicator.progress = MAX(MIN(1, progress), 0);
-                    
+                    _playButton.hidden = YES;
                 }else{
                     _loadingIndicator.hidden = YES;
+                    _playButton.hidden = NO;
                 }
             }
         }
@@ -547,12 +548,10 @@
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 }
     
--(void) setupVideoPreviewUrl:(NSURL*)url avurlAsset:(AVURLAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
+-(void) setupVideoPreviewAsset:(AVAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
     if(self.photo.isVideo){
         if(avurlAsset != nil){
             _asset = avurlAsset;
-        }else{
-            _asset = [AVAsset assetWithURL:url];
         }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
         
@@ -618,12 +617,12 @@
         }else {
             typeof(self) __weak weakSelf = self;
             if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
-                [self.photo getVideoURL:^(NSURL *url, AVURLAsset * _Nullable avurlAsset) {
+                [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
                     if(url){
                         typeof(self) strongSelf = weakSelf;
                         dispatch_async(dispatch_get_main_queue(), ^{
                             
-                            [strongSelf setupVideoPreviewUrl:url avurlAsset:avurlAsset photoImageViewFrame:strongSelf.frame];
+                            [strongSelf setupVideoPreviewAsset:avAsset photoImageViewFrame:strongSelf.frame];
                             [strongSelf onVideoTapped];
 //                            strongSelf.videoPlayer.hidden = NO;
 //                            if(strongSelf.videoLayer.superview == nil){

@@ -18,7 +18,7 @@
 @required
 - (void)onPlaybackTimeCheckerTimer;
 - (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser;
-- (void)setupVideoPreviewUrl:(NSURL*)url avurlAsset:(AVURLAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame;
+- (void)setupVideoPreviewAsset:(AVAsset*)asset photoImageViewFrame:(CGRect)photoImageViewFrame;
 - (void)displayImage;
 - (void)displayImageFailure;
 - (void)setMaxMinZoomScalesForCurrentBounds;
