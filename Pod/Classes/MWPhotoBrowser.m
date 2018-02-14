@@ -1016,11 +1016,11 @@
     }
     
     // Notify delegate
-    if (index != _previousPageIndex) {
+//    if (index != _previousPageIndex) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:)])
             [_delegate photoBrowser:self didDisplayPhotoAtIndex:index];
-        _previousPageIndex = index;
-    }
+//        _previousPageIndex = index;
+//    }
     
     // Update nav
     [self updateNavigation];
