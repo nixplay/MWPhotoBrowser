@@ -92,6 +92,7 @@
         if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
             [_photo cancelAnyLoading];
         }
+        [self stopPlaybackTimeChecker];
         _isPlaying = NO;
         [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
         [_player seekToTime:CMTimeMake(0, 1)];
@@ -108,6 +109,7 @@
     }
 }
 - (void)dealloc {
+    [self stopPlaybackTimeChecker];
     if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
         [_photo cancelAnyLoading];
     }
@@ -116,6 +118,7 @@
 }
     
 - (void)prepareForReuse {
+    [self stopPlaybackTimeChecker];
     [self hideImageFailure];
     [_asset cancelLoading];
     if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {

@@ -152,7 +152,7 @@
                     }else{
                         completion(((AVURLAsset *)asset).URL,asset);
                     }
-                }            
+                }
         }];
     }else if (_videoURL) {
         completion(_videoURL, nil);
