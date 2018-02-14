@@ -421,10 +421,20 @@ static dispatch_time_t getDispatchTimeFromSeconds(float seconds) {
         [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
     };
     _assetRequestID = [imageManager requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:options resultHandler:^(UIImage *result, NSDictionary *info) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.underlyingImage = result;
-            [self imageLoadingComplete];
-        });
+        if(result){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                    self.underlyingImage = result;
+                
+                    [self imageLoadingComplete];
+                
+            });
+            
+        }else{
+            NSLog(@"MWPhoto _performLoadUnderlyingImageAndNotifyWithAsset result == %@ %@",result,info);
+            NSLog(@"MWPhoto retry performLoadUnderlyingImageAndNotify");
+            [self performLoadUnderlyingImageAndNotify];
+        }
     }];
     
 }

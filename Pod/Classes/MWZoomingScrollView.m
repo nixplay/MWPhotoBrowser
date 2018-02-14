@@ -201,7 +201,7 @@
             [self hideLoadingIndicator];
             
             // Set image
-            _photoImageView.image = img;
+                _photoImageView.image = img;
             _photoImageView.hidden = NO;
             
             // Setup photo frame
