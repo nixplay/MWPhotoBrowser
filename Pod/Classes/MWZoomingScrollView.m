@@ -13,6 +13,7 @@
 #import "MWPhoto.h"
 #import "MWPhotoBrowserPrivate.h"
 #import "UIImage+MWPhotoBrowser.h"
+
 // Private methods and properties
 @interface MWZoomingScrollView () {
     
@@ -558,7 +559,7 @@
         if(avurlAsset != nil){
             _asset = avurlAsset;
         }
-        AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
+        AVPlayerItem *item =  ([_asset isKindOfClass: [AVURLAsset class]]) ?  [self createPlayerItemWithUrl:[((AVURLAsset*)_asset).URL absoluteString] ] : [AVPlayerItem playerItemWithAsset:_asset] ;
         
         AVPlayer *player = [AVPlayer playerWithPlayerItem:item];
         self.player  = player;
@@ -588,6 +589,27 @@
     }
     
 }
+
+- (AVPlayerItem *)createPlayerItemWithUrl:(NSString *)url {
+    //创建playeritem
+    AVPlayerItem *playerItem = nil;
+    if ([NSString httpURL:url]) {
+        NSString *fileUrl = [CrFileHandle file:[NSString fileNameFromURL:url] existsAtCahcesFolder:self.resourceLoader.cachesFolder];
+        if (fileUrl != nil) {   //有缓存
+            playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:fileUrl]];
+        } else {                //无缓存
+            NSURLComponents *components = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:url] resolvingAgainstBaseURL:NO];
+            self.resourceLoader.scheme = components.scheme;
+            components.scheme = @"streaming";
+            AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:components.URL options:nil];
+            [urlAsset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_queue_create("ResourceLoaderQueue", DISPATCH_QUEUE_SERIAL)];
+            playerItem = [AVPlayerItem playerItemWithAsset:urlAsset];
+        }
+    } else {
+        playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:url]];
+    }
+    return playerItem;
+}
     
 -(void) playerItemDidReachEnd:(NSNotification *)notification {
     
@@ -601,9 +623,9 @@
     
 }
 - (void) tapOnVideoLayer:(UITapGestureRecognizer *)tap
-    {
-        [self onVideoTapped];
-    }
+{
+    [self onVideoTapped];
+}
     
 -(void) onPlayButtonPressed:(id) sender{
     [self onVideoTapped];
@@ -621,17 +643,19 @@
             _isPlaying = NO;
         }else {
             typeof(self) __weak weakSelf = self;
-            if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
+            if(!self.asset){
                 [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
                     if(url){
                         if(!avAsset && url){
-                            weakSelf.asset = [AVAsset assetWithURL:url];
+                            weakSelf.asset = [AVURLAsset assetWithURL:url];
+                        }else if(avAsset){
+                            weakSelf.asset=avAsset;
                         }
                         typeof(self) strongSelf = weakSelf;
                         
                         dispatch_async(dispatch_get_main_queue(), ^{
                             
-                            [strongSelf setupVideoPreviewAsset:avAsset photoImageViewFrame:strongSelf.frame];
+                            [strongSelf setupVideoPreviewAsset: strongSelf.asset photoImageViewFrame:strongSelf.frame];
                             [strongSelf onVideoTapped];
 //                            strongSelf.videoPlayer.hidden = NO;
 //                            if(strongSelf.videoLayer.superview == nil){
@@ -724,5 +748,29 @@
         
     }
 }
+
+#pragma mark - getter
+- (AVPlayer *)player {
+    if (_player == nil) {
+        _player = [[AVPlayer alloc] init];
+    }
+    return _player;
+}
+
+- (AVPlayerLayer *)playerLayer {
+    if (_playerLayer == nil) {
+        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+    }
+    return _playerLayer;
+}
+
+- (CrResourceLoader *)resourceLoader {
+    if (_resourceLoader == nil) {
+        _resourceLoader = [[CrResourceLoader alloc] init];
+        _resourceLoader.cachesFolder = @"MV";
+    }
+    return _resourceLoader;
+}
+
 @end
 

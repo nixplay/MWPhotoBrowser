@@ -4,6 +4,7 @@ platform :ios, "9.0"
 target 'MWPhotoBrowser_Example'  do
   pod 'MWPhotoBrowser', :path => '../'
   pod 'SDWebImage' , '4.2.2'
+  pod 'AVPlayerCache'
 end
 
 target 'MWPhotoBrowser_Tests' do

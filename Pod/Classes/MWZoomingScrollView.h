@@ -10,6 +10,7 @@
 #import "MWPhotoProtocol.h"
 #import "MWTapDetectingImageView.h"
 #import "MWTapDetectingView.h"
+#import "AVPlayerCache.h"
 @import AVKit;
 @import AVFoundation;
 @class MWPhotoBrowser, MWPhoto, MWCaptionView;
@@ -54,7 +55,6 @@
 @property (nonatomic, weak) MWCaptionView *captionView;
 @property (nonatomic, weak) UIButton *selectedButton;
 @property (nonatomic, weak) UIButton *playButton;
-
 @property (nonatomic , strong) AVPlayer *player;
 @property (nonatomic , strong) AVPlayerItem *playerItem;
 @property (nonatomic , strong) AVPlayerLayer *playerLayer;
@@ -66,6 +66,7 @@
 @property (nonatomic , strong) AVAsset *asset;
 @property (assign, nonatomic) BOOL isPlaying;
 @property (assign, nonatomic) BOOL isReadyToPlay;
+@property (nonatomic, strong) CrResourceLoader  *resourceLoader;
 
 
 
