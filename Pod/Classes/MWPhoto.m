@@ -145,7 +145,6 @@
             typeof(self) strongSelf = weakSelf;
             if (!strongSelf) return;
             strongSelf->_assetVideoRequestID = PHInvalidImageRequestID;
-//            if ([asset isKindOfClass:[AVURLAsset class]] ){
                 NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
                 if(CMTimeGetSeconds(asset.duration) > 0){
                     if ([asset isKindOfClass:[AVComposition class]] ){
@@ -153,102 +152,7 @@
                     }else{
                         completion(((AVURLAsset *)asset).URL,asset);
                     }
-                }
-//            }
-            /*else {
-                if(([asset isKindOfClass:[AVComposition class]] && ((AVComposition *)asset).tracks.count == 2)){
-                    //slow motion videos. See Here: https://overflow.buffer.com/2016/02/29/slow-motion-video-ios/
-                    
-                    //Output URL of the slow motion file.
-                    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-                    NSString *documentsDirectory = paths.firstObject;
-                    //cache it
-                    NSString *myPathDocs =  [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.mov", [[_asset.localIdentifier componentsSeparatedByString:@"/"] objectAtIndex:0]]];
-                    NSLog(@"myPathDocs %@",myPathDocs);
-                    NSURL *url = [NSURL fileURLWithPath:myPathDocs];
-                    
-                    if([[NSFileManager defaultManager] fileExistsAtPath:myPathDocs]){
-                        completion(url,[AVURLAsset assetWithURL:url]);
-                        
-                    }   else{
-                        //Begin slow mo video export
-                        exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
-                        exporter.outputURL = url;
-                        exporter.outputFileType = AVFileTypeQuickTimeMovie;
-                        exporter.shouldOptimizeForNetworkUse = YES;
-                        dispatch_semaphore_t sessionWaitSemaphore = dispatch_semaphore_create(0);
-                        
-                        void (^completionHandler)(void) = ^(void)
-                        {
-                            dispatch_semaphore_signal(sessionWaitSemaphore);
-                        };
-                        
-                        [exporter exportAsynchronouslyWithCompletionHandler: completionHandler];
-                        
-                        do {
-                            dispatch_time_t dispatchTime = DISPATCH_TIME_FOREVER;  // if we dont want progress, we will wait until it finishes.
-                            dispatchTime = getDispatchTimeFromSeconds((float)1.0);
-                            double progress = [exporter progress] ;
-                            NSLog(@"cacheAsset: %f", progress);
-                            @try{
-                                NSDictionary* dict = @{
-                                                       @"progress": [NSNumber numberWithDouble:progress],
-                                                       @"video" : self,
-                                                       @"assetVideoRequestID" : @"_assetVideoRequestID"};
-                                
-                                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
-                            }@catch(NSException *exc){
-                                NSLog(@"NSException %@",exc.description);
-                            }
-                            
-                            dispatch_semaphore_wait(sessionWaitSemaphore, dispatchTime);
-                        } while( [exporter status] < AVAssetExportSessionStatusCompleted );
-                        
-                        switch(exporter.status){
-                            case AVAssetExportSessionStatusUnknown:
-                                NSLog(@"AVAssetExportSessionStatusUnknown");
-                                completion(nil, nil);
-                                break;
-                            case AVAssetExportSessionStatusWaiting:
-                                NSLog(@"AVAssetExportSessionStatusWaiting");
-                                break;
-                            case AVAssetExportSessionStatusExporting:
-                                NSLog(@"AVAssetExportSessionStatusExporting");
-                                break;
-                            case AVAssetExportSessionStatusCompleted:
-                                NSLog(@"AVAssetExportSessionStatusCompleted");
-                            {
-                                    NSURL *URL = exporter.outputURL;
-                                    completion(URL, [AVURLAsset assetWithURL:URL]);
-                                NSDictionary* dict = @{
-                                                       @"progress": [NSNumber numberWithDouble:1],
-                                                       @"video" : self,
-                                                       @"assetVideoRequestID" : @"_assetVideoRequestID"};
-                                
-                                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
-                                
-                            }
-                                break;
-                            case AVAssetExportSessionStatusFailed:
-                                NSLog(@"AVAssetExportSessionStatusFailed %@",exporter.error.localizedDescription);
-                                completion(nil, nil);
-                                break;
-                            case AVAssetExportSessionStatusCancelled:
-                                NSLog(@"AVAssetExportSessionStatusCancelled");
-                                completion(nil, nil);
-                                break;
-                        }
-                        
-                        
-                    }
-                    
-             
-                }
-                                else{
-                    completion(nil, nil);
-                }
-            }*/
-            
+                }            
         }];
     }else if (_videoURL) {
         completion(_videoURL, nil);
@@ -431,8 +335,8 @@ static dispatch_time_t getDispatchTimeFromSeconds(float seconds) {
             });
             
         }else{
-            NSLog(@"MWPhoto _performLoadUnderlyingImageAndNotifyWithAsset result == %@ %@",result,info);
-            NSLog(@"MWPhoto retry performLoadUnderlyingImageAndNotify");
+            NSLog(@"!!!! MWPhoto _performLoadUnderlyingImageAndNotifyWithAsset result == %@ %@",result,info);
+            NSLog(@"!!!! MWPhoto retry performLoadUnderlyingImageAndNotify");
             [self performLoadUnderlyingImageAndNotify];
         }
     }];
