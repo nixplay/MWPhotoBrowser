@@ -31,6 +31,7 @@
 - (void)stopPlaybackTimeChecker;
 - (void)seekVideoToPos:(CGFloat)pos;
 - (void)resetPlayer;
+- (void)playerItemDidReachEnd:(NSNotification *)notification;
 @end
 
 @interface MWZoomingScrollView : UIScrollView <MWZoomingScrollViewProtocol, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
