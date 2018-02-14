@@ -472,10 +472,12 @@
 #pragma mark - Tap Detection
     
 - (void)handleSingleTap:(CGPoint)touchPoint {
+    
     if(self.isPlaying){
         [self onVideoTapped];
+    }else{
+        [_photoBrowser performSelector:@selector(toggleControls) withObject:nil afterDelay:0.2];
     }
-    [_photoBrowser performSelector:@selector(toggleControls) withObject:nil afterDelay:0.2];
 }
     
 - (void)handleDoubleTap:(CGPoint)touchPoint {
@@ -619,7 +621,11 @@
             if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
                 [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
                     if(url){
+                        if(!avAsset && url){
+                            weakSelf.asset = [AVAsset assetWithURL:url];
+                        }
                         typeof(self) strongSelf = weakSelf;
+                        
                         dispatch_async(dispatch_get_main_queue(), ^{
                             
                             [strongSelf setupVideoPreviewAsset:avAsset photoImageViewFrame:strongSelf.frame];
