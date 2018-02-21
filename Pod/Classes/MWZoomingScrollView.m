@@ -395,22 +395,27 @@
     _tapView.frame = self.bounds;
     
     // Position indicators (centre does not seem to work!)
-    if (!_loadingIndicator.hidden)
-    _loadingIndicator.frame = CGRectMake(floorf((self.bounds.size.width - _loadingIndicator.frame.size.width) / 2.),
-                                         floorf((self.bounds.size.height - _loadingIndicator.frame.size.height) / 2),
-                                         _loadingIndicator.frame.size.width,
-                                         _loadingIndicator.frame.size.height);
-    if (_loadingError)
-    _loadingError.frame = CGRectMake(floorf((self.bounds.size.width - _loadingError.frame.size.width) / 2.),
-                                     floorf((self.bounds.size.height - _loadingError.frame.size.height) / 2),
-                                     _loadingError.frame.size.width,
-                                     _loadingError.frame.size.height);
-    
+    if (!_loadingIndicator.hidden){
+        
+        _loadingIndicator.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingIndicator.frame.size.width * .5f) ),
+                                             floorf((self.bounds.size.height * .5f - _loadingIndicator.frame.size.height * .5f) ),
+                                             _loadingIndicator.frame.size.width,
+                                             _loadingIndicator.frame.size.height);
+        
+    }
+    if (_loadingError){
+        
+        _loadingError.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingError.frame.size.width * .5f) ),
+                                         floorf((self.bounds.size.height * .5f - _loadingError.frame.size.height * .5f) ),
+                                         _loadingError.frame.size.width,
+                                         _loadingError.frame.size.height);
+    }
     // Super
     [super layoutSubviews];
     
     // Center the image as it becomes smaller than the size of the screen
     CGSize boundsSize = self.bounds.size;
+    
     CGRect frameToCenter = _photoImageView.frame;
     
     // Horizontally
