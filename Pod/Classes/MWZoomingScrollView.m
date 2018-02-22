@@ -292,7 +292,7 @@
             }
         }else  if([dict objectForKey:@"video"] != nil){
             id <MWPhoto> photoWithProgress = [dict objectForKey:@"video"];
-            if (photoWithProgress == self.photo) {
+            if (photoWithProgress == _photo) {
                 float progress = [[dict valueForKey:@"progress"] floatValue];
                 if(progress < 1 ){
                     _loadingIndicator.hidden = NO;
@@ -316,10 +316,7 @@
     
 - (void)showLoadingIndicator {
     
-    _loadingIndicator.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingIndicator.frame.size.width * .5f) ),
-                                         floorf((self.bounds.size.height * .5f - _loadingIndicator.frame.size.height * .5f) ),
-                                         _loadingIndicator.frame.size.width,
-                                         _loadingIndicator.frame.size.height);
+    _loadingIndicator.center = _tapView.center;
     _label.center = _loadingIndicator.center;
     _label.top = _loadingIndicator.bottom + 10;
     self.zoomScale = 0;
@@ -424,23 +421,7 @@
     // Update tap view frame
     _tapView.frame = self.bounds;
     
-    // Position indicators (centre does not seem to work!)
-    if (!_loadingIndicator.hidden){
-        
-        _loadingIndicator.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingIndicator.frame.size.width * .5f) ),
-                                             floorf((self.bounds.size.height * .5f - _loadingIndicator.frame.size.height * .5f) ),
-                                             _loadingIndicator.frame.size.width,
-                                             _loadingIndicator.frame.size.height);
-        _label.center = _loadingIndicator.center;
-        _label.top = _loadingIndicator.bottom + 5;
-    }
-    if (_loadingError){
-        
-        _loadingError.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingError.frame.size.width * .5f) ),
-                                         floorf((self.bounds.size.height * .5f - _loadingError.frame.size.height * .5f) ),
-                                         _loadingError.frame.size.width,
-                                         _loadingError.frame.size.height);
-    }
+    
     // Super
     [super layoutSubviews];
     
@@ -468,6 +449,21 @@
     _photoImageView.frame = frameToCenter;
     
     [self setFrameToCenter:frameToCenter];
+    // Position indicators (centre does not seem to work!)
+    
+    if (!_loadingIndicator.hidden){
+        
+        _loadingIndicator.center = _tapView.center;
+        _label.center = _loadingIndicator.center;
+        _label.top = _loadingIndicator.bottom + 5;
+    }
+    if (_loadingError){
+        
+        _loadingError.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingError.frame.size.width * .5f) ),
+                                         floorf((self.bounds.size.height * .5f - _loadingError.frame.size.height * .5f) ),
+                                         _loadingError.frame.size.width,
+                                         _loadingError.frame.size.height);
+    }
 }
     
     
@@ -587,7 +583,7 @@
 -(void) setPlayButton:(UIButton*)button{
     _playButton = button;
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    _loadingIndicator.center = self.playButton.center;
+    _loadingIndicator.center = _tapView.center;
     _label.center = _loadingIndicator.center;
     _label.top = _loadingIndicator.bottom + 10;
 }
@@ -661,6 +657,9 @@
         }else {
             typeof(self) __weak weakSelf = self;
             if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
+                _loadingIndicator.center = _tapView.center;
+                _label.center = _loadingIndicator.center;
+                _label.top = _loadingIndicator.bottom + 5;
                 [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
 //                    if(url)
                     {
