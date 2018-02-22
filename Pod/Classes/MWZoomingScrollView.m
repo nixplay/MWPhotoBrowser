@@ -13,6 +13,7 @@
 #import "MWPhoto.h"
 #import "MWPhotoBrowserPrivate.h"
 #import "UIImage+MWPhotoBrowser.h"
+#import "ViewUtils.h"
 // Private methods and properties
 @interface MWZoomingScrollView () {
     
@@ -20,6 +21,7 @@
     MWTapDetectingView *_tapView; // for background taps
     MWTapDetectingImageView *_photoImageView;
     DACircularProgressView *_loadingIndicator;
+    UILabel *_label;
     UIImageView *_loadingError;
     UITapGestureRecognizer * _tap;
     
@@ -67,6 +69,19 @@
         _loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
         UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         [self addSubview:_loadingIndicator];
+        
+        NSBundle* bundle = [NSBundle bundleWithURL:[[NSBundle bundleForClass:[MWPhotoBrowser class]] URLForResource:@"MWPhotoBrowser" withExtension:@"bundle"]];
+        
+        _label = [[UILabel alloc] initWithFrame:CGRectMake(140.0f, 50.0f, 50.0f, 30.0f)];
+        [_label setFont:[UIFont systemFontOfSize:12]];
+        [_label setTextColor:[UIColor whiteColor]];
+        [_label setTextAlignment:NSTextAlignmentCenter];
+        _loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
+        UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        
+        _label.text = NSLocalizedStringFromTableInBundle(@"Syncing", @"MWPhotoBrowser", bundle, @"Syncing");
+        
+        [self addSubview:_label];
         
         // Listen progress notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -269,6 +284,11 @@
             if (photoWithProgress == self.photo) {
                 float progress = [[dict valueForKey:@"progress"] floatValue];
                 _loadingIndicator.progress = MAX(MIN(1, progress), 0);
+                 if(progress < 1 ){
+                     _playButton.hidden = YES;
+                 }else{
+                     _playButton.hidden = NO;
+                 }
             }
         }else  if([dict objectForKey:@"video"] != nil){
             id <MWPhoto> photoWithProgress = [dict objectForKey:@"video"];
@@ -276,10 +296,12 @@
                 float progress = [[dict valueForKey:@"progress"] floatValue];
                 if(progress < 1 ){
                     _loadingIndicator.hidden = NO;
+                    _label.hidden = NO;
                     _loadingIndicator.progress = MAX(MIN(1, progress), 0);
                     _playButton.hidden = YES;
                 }else{
                     _loadingIndicator.hidden = YES;
+                    _label.hidden = NO;
                     _playButton.hidden = NO;
                 }
             }
@@ -289,15 +311,23 @@
     
 - (void)hideLoadingIndicator {
     _loadingIndicator.hidden = YES;
+    _label.hidden = YES;
 }
     
 - (void)showLoadingIndicator {
     
+    _loadingIndicator.frame = CGRectMake(self.bounds.origin.x + floorf((self.bounds.size.width * .5f - _loadingIndicator.frame.size.width * .5f) ),
+                                         floorf((self.bounds.size.height * .5f - _loadingIndicator.frame.size.height * .5f) ),
+                                         _loadingIndicator.frame.size.width,
+                                         _loadingIndicator.frame.size.height);
+    _label.center = _loadingIndicator.center;
+    _label.top = _loadingIndicator.bottom + 10;
     self.zoomScale = 0;
     self.minimumZoomScale = 0;
     self.maximumZoomScale = 0;
     _loadingIndicator.progress = 0;
     _loadingIndicator.hidden = NO;
+    _label.hidden = NO;
     [self hideImageFailure];
 }
     
@@ -401,7 +431,8 @@
                                              floorf((self.bounds.size.height * .5f - _loadingIndicator.frame.size.height * .5f) ),
                                              _loadingIndicator.frame.size.width,
                                              _loadingIndicator.frame.size.height);
-        
+        _label.center = _loadingIndicator.center;
+        _label.top = _loadingIndicator.bottom + 5;
     }
     if (_loadingError){
         
@@ -556,13 +587,16 @@
 -(void) setPlayButton:(UIButton*)button{
     _playButton = button;
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    _loadingIndicator.center = self.playButton.center;
+    _label.center = _loadingIndicator.center;
+    _label.top = _loadingIndicator.bottom + 10;
 }
     
 -(void) setupVideoPreviewAsset:(AVAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
     if(self.photo.isVideo){
-        if(avurlAsset != nil){
-            _asset = avurlAsset;
-        }
+//        if(avurlAsset != nil){
+//            _asset = avurlAsset;
+//        }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:_asset];
         
         AVPlayer *player = [AVPlayer playerWithPlayerItem:item];
@@ -628,27 +662,19 @@
             typeof(self) __weak weakSelf = self;
             if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
                 [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
-                    if(url){
+//                    if(url)
+                    {
                         if(!avAsset && url){
-                            weakSelf.asset = [AVAsset assetWithURL:url];
+                            weakSelf.asset = [AVURLAsset assetWithURL:url];
+                        } else if (avAsset){
+                            weakSelf.asset = avAsset;
                         }
                         typeof(self) strongSelf = weakSelf;
                         
                         dispatch_async(dispatch_get_main_queue(), ^{
                             
-                            [strongSelf setupVideoPreviewAsset:avAsset photoImageViewFrame:strongSelf.frame];
+                            [strongSelf setupVideoPreviewAsset:strongSelf.asset photoImageViewFrame:strongSelf.frame];
                             [strongSelf onVideoTapped];
-//                            strongSelf.videoPlayer.hidden = NO;
-//                            if(strongSelf.videoLayer.superview == nil){
-//                                [self.videoPlayer addSubview:strongSelf.videoLayer];
-//                            }
-//                            [strongSelf playButton].hidden = YES;
-//
-//
-//                            [strongSelf startPlaybackTimeChecker];
-//                            strongSelf.isReadyToPlay = YES;
-//                            [strongSelf.player play];
-//                            _photoImageView.hidden = YES;
                         });
                     }
                 }];
