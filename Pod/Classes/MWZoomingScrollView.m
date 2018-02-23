@@ -72,7 +72,6 @@
         UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         [self addSubview: self.loadingIndicator];
         
-        NSBundle* bundle = [NSBundle bundleWithURL:[[NSBundle bundleForClass:[MWPhotoBrowser class]] URLForResource:@"MWPhotoBrowser" withExtension:@"bundle"]];
         
         _label = [[UILabel alloc] initWithFrame:CGRectMake(140.0f, 50.0f, 50.0f, 30.0f)];
         [_label setFont:[UIFont systemFontOfSize:12]];
@@ -81,7 +80,7 @@
         self.loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
         UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         
-        _label.text = NSLocalizedStringFromTableInBundle(@"Syncing", @"MWPhotoBrowser", bundle, @"Syncing");
+        _label.text = [self labelText];
         
         [self addSubview:_label];
         
@@ -746,6 +745,9 @@
         }
         
     }
+}
+- (NSString*) labelText{
+    return @"";
 }
 @end
 

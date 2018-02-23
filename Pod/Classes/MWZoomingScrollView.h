@@ -32,6 +32,8 @@
 - (void)seekVideoToPos:(CGFloat)pos;
 - (void)resetPlayer;
 - (void)playerItemDidReachEnd:(NSNotification *)notification;
+- (NSString*) labelText;
+
 @end
 
 @interface MWZoomingScrollView : UIScrollView <MWZoomingScrollViewProtocol, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
