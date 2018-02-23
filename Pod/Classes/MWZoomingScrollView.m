@@ -20,12 +20,13 @@
     MWPhotoBrowser __weak *_photoBrowser;
     MWTapDetectingView *_tapView; // for background taps
     MWTapDetectingImageView *_photoImageView;
-    DACircularProgressView *_loadingIndicator;
+    
     UILabel *_label;
     UIImageView *_loadingError;
     UITapGestureRecognizer * _tap;
     
 }
+@property (nonatomic, strong) DACircularProgressView * loadingIndicator;
 @end
 
 @implementation MWZoomingScrollView
@@ -40,6 +41,7 @@
 @synthesize asset = _asset;
 @synthesize isPlaying = _isPlaying;
 @synthesize playButton = _playButton;
+@synthesize loadingIndicator = _loadingIndicator;
 - (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser {
     if ((self = [super init])) {
         
@@ -62,13 +64,13 @@
         [self addSubview:_photoImageView];
         
         // Loading indicator
-        _loadingIndicator = [[DACircularProgressView alloc] initWithFrame:CGRectMake(140.0f, 30.0f, 40.0f, 40.0f)];
-        _loadingIndicator.userInteractionEnabled = NO;
-        _loadingIndicator.thicknessRatio = 0.1;
-        _loadingIndicator.roundedCorners = NO;
-        _loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
+        self.loadingIndicator = [[DACircularProgressView alloc] initWithFrame:CGRectMake(140.0f, 30.0f, 40.0f, 40.0f)];
+        self.loadingIndicator.userInteractionEnabled = NO;
+        self.loadingIndicator.thicknessRatio = 0.1;
+        self.loadingIndicator.roundedCorners = NO;
+        self.loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
         UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
-        [self addSubview:_loadingIndicator];
+        [self addSubview: self.loadingIndicator];
         
         NSBundle* bundle = [NSBundle bundleWithURL:[[NSBundle bundleForClass:[MWPhotoBrowser class]] URLForResource:@"MWPhotoBrowser" withExtension:@"bundle"]];
         
@@ -76,7 +78,7 @@
         [_label setFont:[UIFont systemFontOfSize:12]];
         [_label setTextColor:[UIColor whiteColor]];
         [_label setTextAlignment:NSTextAlignmentCenter];
-        _loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
+        self.loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
         UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         
         _label.text = NSLocalizedStringFromTableInBundle(@"Syncing", @"MWPhotoBrowser", bundle, @"Syncing");
@@ -283,25 +285,26 @@
             id <MWPhoto> photoWithProgress = [dict objectForKey:@"photo"];
             if (photoWithProgress == self.photo) {
                 float progress = [[dict valueForKey:@"progress"] floatValue];
-                _loadingIndicator.progress = MAX(MIN(1, progress), 0);
+                self.loadingIndicator.progress = MAX(MIN(1, progress), 0);
                  if(progress < 1 ){
                      _playButton.hidden = YES;
                  }else{
                      _playButton.hidden = NO;
                  }
             }
-        }else  if([dict objectForKey:@"video"] != nil){
+        }
+        else  if([dict objectForKey:@"video"] != nil){
+
             id <MWPhoto> photoWithProgress = [dict objectForKey:@"video"];
             if (photoWithProgress == _photo) {
                 float progress = [[dict valueForKey:@"progress"] floatValue];
                 if(progress < 1 ){
-                    _loadingIndicator.hidden = NO;
+                    self.loadingIndicator.hidden = NO;
                     _label.hidden = NO;
-                    _loadingIndicator.progress = MAX(MIN(1, progress), 0);
+                    self.loadingIndicator.progress = MAX(MIN(1, progress), 0);
                     _playButton.hidden = YES;
                 }else{
-                    _loadingIndicator.hidden = YES;
-                    _label.hidden = NO;
+                    [self hideLoadingIndicator];
                     _playButton.hidden = NO;
                 }
             }
@@ -310,20 +313,17 @@
 }
     
 - (void)hideLoadingIndicator {
-    _loadingIndicator.hidden = YES;
+    self.loadingIndicator.hidden = YES;
     _label.hidden = YES;
 }
     
 - (void)showLoadingIndicator {
     
-    _loadingIndicator.center = _tapView.center;
-    _label.center = _loadingIndicator.center;
-    _label.top = _loadingIndicator.bottom + 10;
     self.zoomScale = 0;
     self.minimumZoomScale = 0;
     self.maximumZoomScale = 0;
-    _loadingIndicator.progress = 0;
-    _loadingIndicator.hidden = NO;
+    self.loadingIndicator.progress = 0;
+    self.loadingIndicator.hidden = NO;
     _label.hidden = NO;
     [self hideImageFailure];
 }
@@ -450,12 +450,10 @@
     
     [self setFrameToCenter:frameToCenter];
     // Position indicators (centre does not seem to work!)
-    
-    if (!_loadingIndicator.hidden){
-        
-        _loadingIndicator.center = _tapView.center;
-        _label.center = _loadingIndicator.center;
-        _label.top = _loadingIndicator.bottom + 5;
+    if (!self.loadingIndicator.hidden){
+        self.loadingIndicator.center = CGPointMake(CGRectGetMidX(_photoImageView.frame), CGRectGetMidY(_photoImageView.frame));
+        _label.center = self.loadingIndicator.center;
+        _label.top = self.loadingIndicator.bottom + 5;
     }
     if (_loadingError){
         
@@ -583,9 +581,6 @@
 -(void) setPlayButton:(UIButton*)button{
     _playButton = button;
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    _loadingIndicator.center = _tapView.center;
-    _label.center = _loadingIndicator.center;
-    _label.top = _loadingIndicator.bottom + 10;
 }
     
 -(void) setupVideoPreviewAsset:(AVAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
@@ -657,9 +652,7 @@
         }else {
             typeof(self) __weak weakSelf = self;
             if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
-                _loadingIndicator.center = _tapView.center;
-                _label.center = _loadingIndicator.center;
-                _label.top = _loadingIndicator.bottom + 5;
+                
                 [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
 //                    if(url)
                     {
