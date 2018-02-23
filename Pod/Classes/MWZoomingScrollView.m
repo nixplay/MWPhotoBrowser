@@ -285,17 +285,17 @@
             if (photoWithProgress == self.photo) {
                 float progress = [[dict valueForKey:@"progress"] floatValue];
                 self.loadingIndicator.progress = MAX(MIN(1, progress), 0);
-                 if(progress < 1 ){
-                     _playButton.hidden = YES;
-                 }else{
-                     _playButton.hidden = NO;
-                 }
+                
             }
         }
         else  if([dict objectForKey:@"video"] != nil){
 
             id <MWPhoto> photoWithProgress = [dict objectForKey:@"video"];
             if (photoWithProgress == _photo) {
+                self.loadingIndicator.center = CGPointMake(CGRectGetMidX(_photoImageView.frame), CGRectGetMidY(_photoImageView.frame));
+                _label.center = self.loadingIndicator.center;
+                _label.top = self.loadingIndicator.bottom + 5;
+
                 float progress = [[dict valueForKey:@"progress"] floatValue];
                 if(progress < 1 ){
                     self.loadingIndicator.hidden = NO;
@@ -314,6 +314,9 @@
 - (void)hideLoadingIndicator {
     self.loadingIndicator.hidden = YES;
     _label.hidden = YES;
+    if([self.photo isVideo]){
+        self.playButton.hidden = NO;
+    }
 }
     
 - (void)showLoadingIndicator {
