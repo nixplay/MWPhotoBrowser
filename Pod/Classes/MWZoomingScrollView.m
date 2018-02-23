@@ -68,8 +68,11 @@
         self.loadingIndicator.userInteractionEnabled = NO;
         self.loadingIndicator.thicknessRatio = 0.1;
         self.loadingIndicator.roundedCorners = NO;
-        self.loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        self.loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+        self.loadingIndicator.layer.masksToBounds = NO;
+        self.loadingIndicator.layer.shadowOffset = CGSizeMake(-2, 2);
+        self.loadingIndicator.layer.shadowRadius = 2;
+        self.loadingIndicator.layer.shadowOpacity = 1;
         [self addSubview: self.loadingIndicator];
         
         
@@ -77,11 +80,16 @@
         [_label setFont:[UIFont systemFontOfSize:12]];
         [_label setTextColor:[UIColor whiteColor]];
         [_label setTextAlignment:NSTextAlignmentCenter];
+        _label.layer.masksToBounds = NO;
+        _label.layer.shadowOffset = CGSizeMake(-2, 2);
+        _label.layer.shadowRadius = 2;
+        _label.layer.shadowOpacity = 1;
+        
         self.loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
         UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         
         _label.text = [self labelText];
-        
+        [_label sizeToFit];
         [self addSubview:_label];
         
         // Listen progress notifications
@@ -582,6 +590,7 @@
 }
 -(void) setPlayButton:(UIButton*)button{
     _playButton = button;
+    _playButton.hidden = YES;
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 }
     
