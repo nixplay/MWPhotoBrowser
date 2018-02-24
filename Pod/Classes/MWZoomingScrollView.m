@@ -590,7 +590,6 @@
 }
 -(void) setPlayButton:(UIButton*)button{
     _playButton = button;
-    _playButton.hidden = YES;
     [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 }
     
@@ -638,13 +637,14 @@
     [self playButton].hidden = NO;
     self.videoPlayer.hidden = YES;
     _photoImageView.hidden = NO;
+    self.isPlaying = NO;
     [self seekVideoToPos:0];
     
 }
 - (void) tapOnVideoLayer:(UITapGestureRecognizer *)tap
-    {
-        [self onVideoTapped];
-    }
+{
+    [self onVideoTapped];
+}
     
 -(void) onPlayButtonPressed:(id) sender{
     [self onVideoTapped];
