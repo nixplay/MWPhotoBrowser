@@ -6,7 +6,7 @@
 //  Copyright 2010 d3i. All rights reserved.
 //
 
-#import <SDWebImage/SDWebImageDecoder.h>
+//#import <SDWebImage/SDWebImageDecoder.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <SDWebImage/SDWebImageOperation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
@@ -14,12 +14,14 @@
 #import "MWPhotoBrowser.h"
 
 @interface MWPhoto () {
-
+    
     BOOL _loadingInProgress;
     id <SDWebImageOperation> _webImageOperation;
     PHImageRequestID _assetRequestID;
     PHImageRequestID _assetVideoRequestID;
-        
+    AVAssetExportSession *exporter;
+    int _retry;
+    
 }
 
 @property (nonatomic, strong) UIImage *image;
@@ -38,7 +40,7 @@
 #pragma mark - Class Methods
 
 + (MWPhoto *)photoWithImage:(UIImage *)image {
-	return [[MWPhoto alloc] initWithImage:image];
+    return [[MWPhoto alloc] initWithImage:image];
 }
 
 + (MWPhoto *)photoWithURL:(NSURL *)url {
@@ -102,11 +104,13 @@
 }
 
 - (void)setup {
+    _retry = 0;
     _assetRequestID = PHInvalidImageRequestID;
     _assetVideoRequestID = PHInvalidImageRequestID;
 }
 
 - (void)dealloc {
+    _retry = 0;
     [self cancelAnyLoading];
 }
 
@@ -117,13 +121,26 @@
     self.isVideo = YES;
 }
 
-- (void)getVideoURL:(void (^)(NSURL *url))completion {
-    if (_videoURL) {
-        completion(_videoURL);
-    } else if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
+- (void)getVideoURL:(void (^)(NSURL *url, AVAsset *__nullable avurlAsset))completion {
+    if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
         [self cancelVideoRequest]; // Cancel any existing
+        
         PHVideoRequestOptions *options = [PHVideoRequestOptions new];
         options.networkAccessAllowed = YES;
+        
+        options.progressHandler = ^(double progress, NSError *__nullable error, BOOL *stop, NSDictionary *__nullable info) {
+            NSLog(@"cacheAsset: %f", progress);
+            @try{
+                NSDictionary* dict = @{
+                                       @"progress": [NSNumber numberWithDouble:progress],
+                                       @"video" : self,
+                                       @"assetVideoRequestID" : @"_assetVideoRequestID"};
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+            }@catch(NSException *exc){
+                NSLog(@"NSException %@",exc.description);
+            }
+        };
         typeof(self) __weak weakSelf = self;
         _assetVideoRequestID = [[PHImageManager defaultManager] requestAVAssetForVideo:_asset options:options resultHandler:^(AVAsset *asset, AVAudioMix *audioMix, NSDictionary *info) {
             
@@ -131,14 +148,24 @@
             typeof(self) strongSelf = weakSelf;
             if (!strongSelf) return;
             strongSelf->_assetVideoRequestID = PHInvalidImageRequestID;
-            if ([asset isKindOfClass:[AVURLAsset class]]) {
-                completion(((AVURLAsset *)asset).URL);
-            } else {
-                completion(nil);
-            }
-            
+                NSLog(@"asset %f", CMTimeGetSeconds(asset.duration));
+                if(CMTimeGetSeconds(asset.duration) > 0){
+                    if ([asset isKindOfClass:[AVComposition class]] ){
+                        completion(nil,asset);
+                    }else{
+                        completion(((AVURLAsset *)asset).URL,asset);
+                    }
+                }
         }];
+    }else if (_videoURL) {
+        completion(_videoURL, nil);
+        
     }
+}
+static dispatch_time_t getDispatchTimeFromSeconds(float seconds) {
+    long long milliseconds = seconds * 1000.0;
+    dispatch_time_t waitTime = dispatch_time( DISPATCH_TIME_NOW, 1000000LL * milliseconds );
+    return waitTime;
 }
 
 #pragma mark - MWPhoto Protocol Methods
@@ -215,14 +242,14 @@
     @try {
         SDWebImageManager *manager = [SDWebImageManager sharedManager];
         _webImageOperation = [manager loadImageWithURL:url options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-                        if (expectedSize > 0) {
-                            float progress = receivedSize / (float)expectedSize;
-                            NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                  [NSNumber numberWithFloat:progress], @"progress",
-                                                  self, @"photo", nil];
-                            [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
-                        }
-
+            if (expectedSize > 0) {
+                float progress = receivedSize / (float)expectedSize;
+                NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithFloat:progress], @"progress",
+                                      self, @"photo", nil];
+                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+            }
+            
         } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             if (error) {
                 MWLog(@"SDWebImage failed to download image: %@", error);
@@ -300,20 +327,32 @@
                               self, @"photo", nil];
         [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
     };
-    
     _assetRequestID = [imageManager requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:options resultHandler:^(UIImage *result, NSDictionary *info) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.underlyingImage = result;
-            [self imageLoadingComplete];
-        });
+        if(result || _retry > 0){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                    self.underlyingImage = result;
+                
+                    [self imageLoadingComplete];
+                
+            });
+            
+        }else{
+            NSLog(@"!!!! MWPhoto _performLoadUnderlyingImageAndNotifyWithAsset result == %@ %@",result,info);
+            NSLog(@"!!!! MWPhoto retry performLoadUnderlyingImageAndNotify");
+            if(_retry < 10){
+                [self performLoadUnderlyingImageAndNotify];
+                _retry++;
+            }
+        }
     }];
-
+    
 }
 
 // Release if we can get it again from path or url
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
-	self.underlyingImage = nil;
+    self.underlyingImage = nil;
 }
 
 - (void)imageLoadingComplete {
@@ -333,6 +372,9 @@
     if (_webImageOperation != nil) {
         [_webImageOperation cancel];
         _loadingInProgress = NO;
+    }
+    if(exporter){
+        [exporter cancelExport];
     }
     [self cancelImageRequest];
     [self cancelVideoRequest];

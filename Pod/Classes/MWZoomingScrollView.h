@@ -10,10 +10,45 @@
 #import "MWPhotoProtocol.h"
 #import "MWTapDetectingImageView.h"
 #import "MWTapDetectingView.h"
-
+@import AVKit;
+@import AVFoundation;
 @class MWPhotoBrowser, MWPhoto, MWCaptionView;
 
-@interface MWZoomingScrollView : UIScrollView <UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
+@protocol MWZoomingScrollViewProtocol <NSObject>
+@required
+- (void)onPlaybackTimeCheckerTimer;
+- (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser;
+- (void)setupVideoPreviewAsset:(AVAsset*)asset photoImageViewFrame:(CGRect)photoImageViewFrame;
+- (void)displayImage;
+- (void)displayImageFailure;
+- (void)setMaxMinZoomScalesForCurrentBounds;
+- (void)prepareForReuse;
+- (BOOL)displayingVideo;
+- (void)setImageHidden:(BOOL)hidden;
+- (void)setPlayButton:(UIButton*)button;
+- (void)displaySubView:(CGRect)photoImageViewFrame;
+- (void)onVideoTapped;
+- (void)startPlaybackTimeChecker;
+- (void)stopPlaybackTimeChecker;
+- (void)seekVideoToPos:(CGFloat)pos;
+- (void)resetPlayer;
+- (void)playerItemDidReachEnd:(NSNotification *)notification;
+- (NSString*) labelText;
+
+@end
+
+@interface MWZoomingScrollView : UIScrollView <MWZoomingScrollViewProtocol, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
+@protected
+    AVPlayer *player;
+    AVPlayerItem *playerItem;
+    AVPlayerLayer *playerLayer;
+    NSTimer *playbackTimeCheckerTimer;
+    CGFloat videoPlaybackPosition;
+    UIView *videoPlayer;
+    UIView *videoLayer;
+    NSString *tempVideoPath;
+    AVAsset *asset;
+    BOOL isPlaying;
 
 }
 
@@ -23,12 +58,18 @@
 @property (nonatomic, weak) UIButton *selectedButton;
 @property (nonatomic, weak) UIButton *playButton;
 
-- (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser;
-- (void)displayImage;
-- (void)displayImageFailure;
-- (void)setMaxMinZoomScalesForCurrentBounds;
-- (void)prepareForReuse;
-- (BOOL)displayingVideo;
-- (void)setImageHidden:(BOOL)hidden;
+@property (nonatomic , strong) AVPlayer *player;
+@property (nonatomic , strong) AVPlayerItem *playerItem;
+@property (nonatomic , strong) AVPlayerLayer *playerLayer;
+@property (nonatomic , strong) NSTimer *playbackTimeCheckerTimer;
+@property (assign, nonatomic) CGFloat videoPlaybackPosition;
+@property (nonatomic , strong) UIView *videoPlayer;
+@property (nonatomic , strong) UIView *videoLayer;
+@property (nonatomic , strong) NSString *tempVideoPath;
+@property (nonatomic , strong) AVAsset *asset;
+@property (assign, nonatomic) BOOL isPlaying;
+@property (assign, nonatomic) BOOL isReadyToPlay;
+
+
 
 @end

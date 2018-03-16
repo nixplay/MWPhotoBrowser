@@ -41,6 +41,7 @@
 - (BOOL)photoBrowserSelectionMode;
 - (BOOL)photoBrowser:(MWPhotoBrowser *)photoBrowser hideToolbar:(BOOL)hide;
 - (NSMutableArray*)photoBrowser:(MWPhotoBrowser *)photoBrowser buildToolbarItems:(UIToolbar*)toolBar;
+- (void)photoBrowser:(MWPhotoBrowser *)photoBrowser controlsHidden:(BOOL)hidden animated:(BOOL)animated; 
 @end
 
 @interface MWPhotoBrowser : UIViewController <UIScrollViewDelegate, UIActionSheetDelegate>
@@ -51,10 +52,12 @@
 @property (nonatomic) BOOL displayActionButton;
 @property (nonatomic) BOOL displaySelectionButtons;
 @property (nonatomic) BOOL alwaysShowControls;
+@property (nonatomic) BOOL allowHideControlsAfterDelay;
 @property (nonatomic) BOOL enableGrid;
 @property (nonatomic) BOOL enableSwipeToDismiss;
 @property (nonatomic) BOOL startOnGrid;
 @property (nonatomic) BOOL autoPlayOnAppear;
+@property (nonatomic) BOOL allowHideNavigationBar;
 @property (nonatomic) NSUInteger delayToHideElements;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 
@@ -79,5 +82,6 @@
 
 -(void)showToolBar;
 -(void)hideToolBar;
+- (void)setVideoLoadingIndicatorVisible:(BOOL)visible atPageIndex:(NSUInteger)pageInde;
 -(UIToolbar *) toolbar;
 @end
