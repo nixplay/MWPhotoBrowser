@@ -14,12 +14,15 @@
 #import "UIImage+MWPhotoBrowser.h"
 #import "DeviceUtil.h"
 #import "Masonry.h"
+#import "AVPlayerCacheSupport/AVPlayerItem+MCCacheSupport.h"
 #define PADDING                  10
 #define IS_IPHONE_X [[self getDeviceName] isEqualToString:IPHONE_X]
 
 //static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 @implementation MWPhotoBrowser
+
+static int AAPLPlayerViewControllerKVOContext = 0;
 
 #pragma mark - Init
 
@@ -94,6 +97,11 @@
                                                  name:MWPHOTO_LOADING_DID_END_NOTIFICATION
                                                object:nil];
     
+    [self addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:&AAPLPlayerViewControllerKVOContext];
+    [self addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:&AAPLPlayerViewControllerKVOContext];
+    [self addObserver:self forKeyPath:@"player.currentItem.status" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:&AAPLPlayerViewControllerKVOContext];
+    [self addObserver:self forKeyPath:@"player.currentItem" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:&AAPLPlayerViewControllerKVOContext];
+    
 }
 
 - (void)dealloc {
@@ -167,22 +175,24 @@
     
     
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
-    _toolbar.tintColor = [UIColor whiteColor];
-    _toolbar.barTintColor = nil;
-    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-    //    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
-    _toolbar.barStyle = UIBarStyleDefault;
-    //    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-    [self.view addSubview:_toolbar];
-    [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+    UIToolbar* toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
+    _toolbar = toolbar;
+    self.toolbar.tintColor = [UIColor whiteColor];
+    self.toolbar.barTintColor = nil;
+    [self.toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
+    //    [self.toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
+    self.toolbar.barStyle = UIBarStyleDefault;
+    //    self.toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    [self.view addSubview:self.toolbar];
+    typeof(self) __weak weakSelf = self;
+    [self.toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
         if(@available(iOS 11, *)){
-            make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+            make.bottom.equalTo(weakSelf.toolbar.superview.mas_safeAreaLayoutGuide);
         }else{
-            make.bottom.equalTo(_toolbar.superview.mas_bottom);
+            make.bottom.equalTo(weakSelf.toolbar.superview.mas_bottom);
         }
-        make.right.equalTo(_toolbar.superview.mas_right);
-        make.left.equalTo(_toolbar.superview.mas_left);
+        make.right.equalTo(weakSelf.toolbar.superview.mas_right);
+        make.left.equalTo(weakSelf.toolbar.superview.mas_left);
     }];
     // Toolbar Items
     if (self.displayNavArrows) {
@@ -258,16 +268,17 @@
         [self createSelectionModeBarButton];
     }else{
         if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
-            [_toolbar setItems:[self.delegate photoBrowser:self buildToolbarItems:_toolbar]];
-            [self.view addSubview:_toolbar];
-            [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+            [self.toolbar setItems:[self.delegate photoBrowser:self buildToolbarItems:self.toolbar]];
+            [self.view addSubview:self.toolbar];
+            typeof(self) __weak weakSelf = self;
+            [self.toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
                 if(@available(iOS 11, *)){
-                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                    make.bottom.equalTo(weakSelf.toolbar.superview.mas_safeAreaLayoutGuide);
                 }else{
-                    make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                    make.bottom.equalTo(weakSelf.toolbar.superview.mas_bottom);
                 }
-                make.right.equalTo(_toolbar.superview.mas_right);
-                make.left.equalTo(_toolbar.superview.mas_left);
+                make.right.equalTo(weakSelf.toolbar.superview.mas_right);
+                make.left.equalTo(weakSelf.toolbar.superview.mas_left);
             }];
             
         }else{
@@ -308,9 +319,9 @@
             }
             
             // Toolbar visibility
-            [_toolbar setItems:items];
+            [self.toolbar setItems:items];
             BOOL hideToolbar = YES;
-            for (UIBarButtonItem* item in _toolbar.items) {
+            for (UIBarButtonItem* item in self.toolbar.items) {
                 if (item != fixedSpace && item != flexSpace) {
                     hideToolbar = NO;
                     break;
@@ -321,20 +332,21 @@
                 hideToolbar = [self.delegate photoBrowser:self hideToolbar:hideToolbar];
             }
             if (hideToolbar) {
-                [_toolbar removeFromSuperview];
+                [self.toolbar removeFromSuperview];
             } else {
-                [self.view addSubview:_toolbar];
-                [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+                [self.view addSubview:self.toolbar];
+                typeof(self) __weak weakSelf = self;
+                [self.toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
                     
                     if(IS_IPHONE_X) {
                         if(@available(iOS 11, *)){
-                            make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                            make.bottom.equalTo(weakSelf.toolbar.superview.mas_safeAreaLayoutGuide);
                         }
                     }else{
-                        make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                        make.bottom.equalTo(weakSelf.toolbar.superview.mas_bottom);
                     }
-                    make.right.equalTo(_toolbar.superview.mas_right);
-                    make.left.equalTo(_toolbar.superview.mas_left);
+                    make.right.equalTo(weakSelf.toolbar.superview.mas_right);
+                    make.left.equalTo(weakSelf.toolbar.superview.mas_left);
                 }];
             }
         }
@@ -362,6 +374,7 @@
     _nextButton = nil;
     _progressHUD = nil;
 //    _currentVideoPlayerView = nil;
+    _currentAVPlayerView = nil;
     [super viewDidUnload];
 }
 
@@ -556,9 +569,9 @@
     _performingLayout = YES;
     
     // Toolbar
-    _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    self.toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
     
-    [_toolbar setNeedsDisplay];
+    [self.toolbar setNeedsDisplay];
     // Remember index
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
@@ -884,7 +897,7 @@
                 UIButton *playButton = [UIButton buttonWithType:UIButtonTypeCustom];
                 [playButton setImage:[UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/PlayButtonOverlayLarge" ofType:@"png" inBundle:[self getBundle]] forState:UIControlStateNormal];
                 [playButton setImage:[UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/PlayButtonOverlayLargeTap" ofType:@"png" inBundle:[self getBundle]] forState:UIControlStateHighlighted];
-//                [playButton addTarget:self action:@selector(playButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+                [playButton addTarget:self action:@selector(playButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
                 [playButton sizeToFit];
                 playButton.frame = [self frameForPlayButton:playButton atIndex:index];
                 [_pagingScrollView addSubview:playButton];
@@ -1080,8 +1093,8 @@
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
     CGRect captionFrame = CGRectMake(pageFrame.origin.x,
                                      pageFrame.size.height - captionSize.height -
-                                     ((IS_IPHONE_X) ?((_toolbar.superview && !UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))? 80 : 70 ) :
-                                      (_toolbar.superview?_toolbar.frame.size.height:0)
+                                     ((IS_IPHONE_X) ?((self.toolbar.superview && !UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))? 80 : 70 ) :
+                                      (self.toolbar.superview?self.toolbar.frame.size.height:0)
                                       ),
                                      pageFrame.size.width,
                                      captionSize.height);
@@ -1243,18 +1256,18 @@
     }
 }
 
-//- (void)playButtonTapped:(id)sender {
-//    // Ignore if we're already playing a video
-//    if (_currentVideoIndex != NSUIntegerMax) {
-//        return;
-//    }
-//    NSUInteger index = [self indexForPlayButton:sender];
-//    if (index != NSUIntegerMax) {
-//        if (!_currentVideoPlayerView) {
-//            [self playVideoAtIndex:index];
-//        }
-//    }
-//}
+- (void)playButtonTapped:(id)sender {
+    // Ignore if we're already playing a video
+    if (_currentVideoIndex != NSUIntegerMax) {
+        return;
+    }
+    NSUInteger index = [self indexForPlayButton:sender];
+    if (index != NSUIntegerMax) {
+        if (! _currentAVPlayerView) {
+            [self playVideoAtIndex:index];
+        }
+    }
+}
 
 - (NSUInteger)indexForPlayButton:(UIView *)playButton {
     NSUInteger index = NSUIntegerMax;
@@ -1269,37 +1282,51 @@
 
 #pragma mark - Video
 
-//- (void)playVideoAtIndex:(NSUInteger)index {
-//    id photo = [self photoAtIndex:index];
-//    if ([photo respondsToSelector:@selector(getVideoURL:)]) {
-//
-//        // Valid for playing
-//        [self clearCurrentVideo];
-//        _currentVideoIndex = index;
-//        [self setVideoLoadingIndicatorVisible:YES atPageIndex:index];
-//
-//        // Get video and play
-//        typeof(self) __weak weakSelf = self;
-//        [photo getVideoURL:^(NSURL *url) {
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                // If the video is not playing anymore then bail
-//                typeof(self) strongSelf = weakSelf;
-//                if (!strongSelf) return;
-//                if (strongSelf->_currentVideoIndex != index || !strongSelf->_viewIsActive) {
-//                    return;
-//                }
-//                if (url) {
-//                    [weakSelf _playVideo:url atPhotoIndex:index];
-//                } else {
-//                    [weakSelf setVideoLoadingIndicatorVisible:NO atPageIndex:index];
-//                }
-//            });
-//        }];
-//
-//    }
-//}
+- (void)playVideoAtIndex:(NSUInteger)index {
+    id photo = [self photoAtIndex:index];
+    if ([photo respondsToSelector:@selector(getVideoURL:)]) {
 
-//- (void)_playVideo:(NSURL *)videoURL atPhotoIndex:(NSUInteger)index {
+        // Valid for playing
+        [self clearCurrentVideo];
+        _currentVideoIndex = index;
+        [self setVideoLoadingIndicatorVisible:YES atPageIndex:index];
+
+        // Get video and play
+        typeof(self) __weak weakSelf = self;
+        [photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+//                // If the video is not playing anymore then bail
+                typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                if (strongSelf->_currentVideoIndex != index || !strongSelf->_viewIsActive) {
+                    return;
+                }
+                
+                if(!avAsset && url){
+                    AVURLAsset *asset = [AVURLAsset assetWithURL:url];
+                    [weakSelf _playVideo:asset atPhotoIndex:index];
+                } else if (avAsset){
+                    [weakSelf _playVideo:avAsset atPhotoIndex:index];
+                }else {
+                    [weakSelf setVideoLoadingIndicatorVisible:NO atPageIndex:index];
+                }
+            });
+        }];
+
+    }
+}
+
+- (void)_playVideo:(AVAsset *)avAsset atPhotoIndex:(NSUInteger)index {
+    _currentAVPlayerView = [[AVPlayerView alloc] initWithFrame:  [self frameForPageAtIndex:index]];
+    
+    AVPlayerItem *item =  ([_asset isKindOfClass: [AVURLAsset class]]) ?  [self createPlayerItemWithUrl:[((AVURLAsset*)avAsset).URL absoluteString] ] : [AVPlayerItem playerItemWithAsset:avAsset] ;
+    
+    _currentAVPlayerView.playerLayer.player = self.player;
+    [_currentAVPlayerView.playerLayer.player replaceCurrentItemWithPlayerItem:item ];
+    _currentAVPlayerView.userInteractionEnabled = NO;
+    [_pagingScrollView addSubview:_currentAVPlayerView];
+    [_currentAVPlayerView.player play];
 //    _currentVideoPlayerViewController = [AVPlayerViewController alloc] initW;
 //
 //    _currentVideoPlayerViewController = [[MPMoviePlayerViewController alloc] initWithContentURL:videoURL];
@@ -1321,8 +1348,18 @@
 //    // Show
 //    [self presentViewController:_currentVideoPlayerViewController animated:YES completion:nil];
 //
-//}
-
+}
+- (AVPlayerItem *)createPlayerItemWithUrl:(NSString *)url {
+    //创建playeritem
+    NSError * error;
+    AVPlayerItem *playerItem = [AVPlayerItem mc_playerItemWithRemoteURL:[NSURL URLWithString:url] error:&error];
+    if(!error){
+        return playerItem;
+    }else{
+        return  [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
+    }
+    return nil;
+}
 //- (void)videoFinishedCallback:(NSNotification*)notification {
 //
 //    // Remove observer
@@ -1348,13 +1385,16 @@
 
 - (void)clearCurrentVideo {
     MWZoomingScrollView * page = [self pageDisplayedAtIndex: _currentPageIndex];
-    [page resetPlayer];
+//    [page resetPlayer];
 ////    [_currentVideoPlayerViewController.moviePlayer stop];
-//    [_currentVideoLoadingIndicator removeFromSuperview];
-//    _currentVideoPlayerView = nil;
-//    _currentVideoLoadingIndicator = nil;
-//    [[self pageDisplayedAtIndex:_currentVideoIndex] playButton].hidden = NO;
-//    _currentVideoIndex = NSUIntegerMax;
+    [_currentAVPlayerView.player pause];
+    
+    [_currentAVPlayerView removeFromSuperview];
+    [_currentVideoLoadingIndicator removeFromSuperview];
+    _currentAVPlayerView = nil;
+    _currentVideoLoadingIndicator = nil;
+    [[self pageDisplayedAtIndex:_currentVideoIndex] playButton].hidden = NO;
+    _currentVideoIndex = NSUIntegerMax;
 }
 
 - (void)setVideoLoadingIndicatorVisible:(BOOL)visible atPageIndex:(NSUInteger)pageIndex {
@@ -1412,8 +1452,8 @@
     // Perform any adjustments
     [_gridController.view layoutIfNeeded];
     [_gridController adjustOffsetsAsRequired];
-    if([_toolbar.items count] > 0){
-        _gridController.bottom = _toolbar.frame.size.height;
+    if([self.toolbar.items count] > 0){
+        _gridController.bottom = self.toolbar.frame.size.height;
     }
     // Hide action button on nav bar if it exists
     if (self.navigationItem.rightBarButtonItem == _actionButton) {
@@ -1445,29 +1485,30 @@
 }
 -(void)showToolBar{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
-        if([_toolbar superview ] != nil){
-            [_toolbar removeFromSuperview];
+        if([self.toolbar superview ] != nil){
+            [self.toolbar removeFromSuperview];
         }
-        NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
-        [_toolbar setItems:items];
-        [self.view addSubview:_toolbar];
-        [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+        NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:self.toolbar];
+        [self.toolbar setItems:items];
+        [self.view addSubview:self.toolbar];
+        typeof(self) __weak weakSelf = self;
+        [self.toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
             
             if(IS_IPHONE_X) {
                 if(@available(iOS 11, *)){
-                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                    make.bottom.equalTo(weakSelf.toolbar.superview.mas_safeAreaLayoutGuide);
                 }
             }else{
-                make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                make.bottom.equalTo(weakSelf.toolbar.superview.mas_bottom);
             }
-            make.right.equalTo(_toolbar.superview.mas_right);
-            make.left.equalTo(_toolbar.superview.mas_left);
+            make.right.equalTo(weakSelf.toolbar.superview.mas_right);
+            make.left.equalTo(weakSelf.toolbar.superview.mas_left);
         }];
     }
 }
 -(void)hideToolBar{
-    if(_toolbar.superview != nil){
-        [_toolbar removeFromSuperview];
+    if(self.toolbar.superview != nil){
+        [self.toolbar removeFromSuperview];
     }
 }
 - (void)hideGrid {
@@ -1565,7 +1606,7 @@
     if ([self areControlsHidden] && !hidden && animated) {
         
         // Toolbar
-        //        _toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]], 0, animatonOffset);
+        //        self.toolbar.frame = CGRectOffset([self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]], 0, animatonOffset);
         
         // Captions
         for (MWZoomingScrollView *page in _visiblePages) {
@@ -1587,9 +1628,9 @@
         if(_allowHideNavigationBar)[self.navigationController.navigationBar setAlpha:alpha];
         
         // Toolbar
-        //        _toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-        //        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
-        _toolbar.alpha = alpha;
+        //        self.toolbar.frame = [self frameForToolbarAtOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        //        if (hidden) self.toolbar.frame = CGRectOffset(self.toolbar.frame, 0, animatonOffset);
+        self.toolbar.alpha = alpha;
         
         // Captions
         for (MWZoomingScrollView *page in _visiblePages) {
@@ -1660,10 +1701,26 @@
     }
 }
 
-- (BOOL)areControlsHidden { return (_toolbar.alpha == 0); }
+- (BOOL)areControlsHidden { return (self.toolbar.alpha == 0); }
 - (void)hideControls { [self setControlsHidden:YES animated:YES permanent:NO]; }
 - (void)showControls { [self setControlsHidden:NO animated:YES permanent:NO]; }
-- (void)toggleControls { [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO]; }
+- (void)toggleControls {
+    if(_currentAVPlayerView){
+        if (_currentAVPlayerView.player.rate != 1.0) {
+            // Not playing foward; so play.
+            if (CMTIME_COMPARE_INLINE(self.currentTime, ==, self.duration)) {
+                // At end; so got back to beginning.
+                self.currentTime = kCMTimeZero;
+            }
+            [_currentAVPlayerView.player play];
+        } else {
+            // Playing; so pause.
+            [_currentAVPlayerView.player pause];
+        }
+    }else{
+        [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO];
+    }
+}
 
 #pragma mark - Properties
 
@@ -1711,18 +1768,19 @@
 
 -(void) createSelectionModeBarButton{
     if([self.delegate respondsToSelector:@selector(photoBrowser:buildToolbarItems:)]){
-        NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:_toolbar];
+        NSMutableArray *items = [self.delegate photoBrowser:self buildToolbarItems:self.toolbar];
         if([items count]>0){
-            [_toolbar setItems:items];
-            [self.view addSubview:_toolbar];
-            [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+            [self.toolbar setItems:items];
+            [self.view addSubview:self.toolbar];
+            typeof(self) __weak weakSelf = self;
+            [self.toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
                 if(@available(iOS 11, *)){
-                    make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                    make.bottom.equalTo(weakSelf.toolbar.superview.mas_safeAreaLayoutGuide);
                 }else{
-                    make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                    make.bottom.equalTo(weakSelf.toolbar.superview.mas_bottom);
                 }
-                make.right.equalTo(_toolbar.superview.mas_right);
-                make.left.equalTo(_toolbar.superview.mas_left);
+                make.right.equalTo(weakSelf.toolbar.superview.mas_right);
+                make.left.equalTo(weakSelf.toolbar.superview.mas_left);
             }];
         }
     }else{
@@ -1747,16 +1805,17 @@
         if (actionButton ) {
             [items addObject:actionButton];
         }
-        [_toolbar setItems:items];
-        [self.view addSubview:_toolbar];
-        [_toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
+        [self.toolbar setItems:items];
+        [self.view addSubview:self.toolbar];
+        typeof(self) __weak weakSelf = self;
+        [self.toolbar mas_makeConstraints:^(MASConstraintMaker *make) {
             if(@available(iOS 11, *)){
-                make.bottom.equalTo(_toolbar.superview.mas_safeAreaLayoutGuide);
+                make.bottom.equalTo(weakSelf.toolbar.superview.mas_safeAreaLayoutGuide);
             }else{
-                make.bottom.equalTo(_toolbar.superview.mas_bottom);
+                make.bottom.equalTo(weakSelf.toolbar.superview.mas_bottom);
             }
-            make.right.equalTo(_toolbar.superview.mas_right);
-            make.left.equalTo(_toolbar.superview.mas_left);
+            make.right.equalTo(weakSelf.toolbar.superview.mas_right);
+            make.left.equalTo(weakSelf.toolbar.superview.mas_left);
         }];
     }
     
@@ -1948,5 +2007,116 @@
     MWZoomingScrollView *scrollView= [[MWZoomingScrollView alloc] initWithPhotoBrowser:self];
     return scrollView;
 }
+
+- (AVPlayer *)player {
+    if (!_player) {
+        _player = [[AVPlayer alloc] init];
+    }
+    return _player;
+}
+
+//- (CMTime)currentTime {
+//    return self.player.currentTime;
+//}
+
+//- (void)setCurrentTime:(CMTime)newCurrentTime {
+//    self.seeking = YES;
+//    MWPhotoBrowser __weak *weakSelf = self;
+//    [self.player seekToTime:newCurrentTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+//        weakSelf.seeking = NO;
+//    }];
+//}
+
+- (CMTime)duration {
+    return self.player.currentItem ? self.player.currentItem.duration : kCMTimeZero;
+}
+
+- (float)rate {
+    return self.player.rate;
+}
+
+- (void)setRate:(float)newRate {
+    self.player.rate = newRate;
+}
+
+- (AVPlayerLayer *)playerLayer {
+    return _currentAVPlayerView.playerLayer;
+}
+
+#pragma mark - KOV
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    
+    if (context != &AAPLPlayerViewControllerKVOContext) {
+        // KVO isn't for us.
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+        return;
+    }
+    
+    if ([keyPath isEqualToString:@"player.currentItem"]) {
+        
+        
+    }
+    else if ([keyPath isEqualToString:@"player.currentItem.duration"]) {
+        // Update timeSlider and enable/disable controls when duration > 0.0
+        
+        // Handle NSNull value for NSKeyValueChangeNewKey, i.e. when player.currentItem is nil
+        NSValue *newDurationAsValue = change[NSKeyValueChangeNewKey];
+        CMTime newDuration = [newDurationAsValue isKindOfClass:[NSValue class]] ? newDurationAsValue.CMTimeValue : kCMTimeZero;
+        BOOL hasValidDuration = CMTIME_IS_NUMERIC(newDuration) && newDuration.value != 0;
+        double currentTime = hasValidDuration ? CMTimeGetSeconds(self.currentTime) : 0.0;
+        double newDurationSeconds = hasValidDuration ? CMTimeGetSeconds(newDuration) : 0.0;
+        
+    }
+    else if ([keyPath isEqualToString:@"player.rate"]) {
+        // Update playPauseButton image
+        
+        double newRate = [change[NSKeyValueChangeNewKey] doubleValue];
+        
+    }
+    else if ([keyPath isEqualToString:@"player.currentItem.status"]) {
+        // Display an error if status becomes Failed
+        
+        // Handle NSNull value for NSKeyValueChangeNewKey, i.e. when player.currentItem is nil
+        NSNumber *newStatusAsNumber = change[NSKeyValueChangeNewKey];
+        AVPlayerItemStatus newStatus = [newStatusAsNumber isKindOfClass:[NSNumber class]] ? newStatusAsNumber.integerValue : AVPlayerItemStatusUnknown;
+        
+        if (newStatus == AVPlayerItemStatusFailed) {
+            [self handleErrorWithMessage:self.player.currentItem.error.localizedDescription error:self.player.currentItem.error];
+        }
+        
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+// Trigger KVO for anyone observing our properties affected by player and player.currentItem
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key {
+    if ([key isEqualToString:@"duration"]) {
+        return [NSSet setWithArray:@[ @"player.currentItem.duration" ]];
+    } else if ([key isEqualToString:@"currentTime"]) {
+        return [NSSet setWithArray:@[ @"player.currentItem.currentTime" ]];
+    } else if ([key isEqualToString:@"rate"]) {
+        return [NSSet setWithArray:@[ @"player.rate" ]];
+    } else {
+        return [super keyPathsForValuesAffectingValueForKey:key];
+    }
+}
+
+- (void)handleErrorWithMessage:(NSString *)message error:(NSError *)error {
+    NSLog(@"Error occurred with message: %@, error: %@.", message, error);
+    
+    NSString *alertTitle = NSLocalizedString(@"alert.error.title", @"Alert title for errors");
+    NSString *defaultAlertMessage = NSLocalizedString(@"error.default.description", @"Default error message when no NSError provided");
+    UIAlertController *controller = [UIAlertController alertControllerWithTitle:alertTitle message:message ?: defaultAlertMessage  preferredStyle:UIAlertControllerStyleAlert];
+    
+    NSString *alertActionTitle = NSLocalizedString(@"alert.error.actions.OK", @"OK on error alert");
+    UIAlertAction *action = [UIAlertAction actionWithTitle:alertActionTitle style:UIAlertActionStyleDefault handler:nil];
+    [controller addAction:action];
+    
+    [self presentViewController:controller animated:YES completion:nil];
+}
+
+
 @end
 

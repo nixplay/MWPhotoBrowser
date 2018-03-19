@@ -45,7 +45,17 @@
 @end
 
 @interface MWPhotoBrowser : UIViewController <UIScrollViewDelegate, UIActionSheetDelegate>
-
+{
+    AVPlayer *_player;
+    AVURLAsset *_asset;
+    
+    /*
+     A token obtained from calling `player`'s `addPeriodicTimeObserverForInterval(_:queue:usingBlock:)`
+     method.
+     */
+    id<NSObject> _timeObserverToken;
+    AVPlayerItem *_playerItem;
+}
 @property (nonatomic, weak) IBOutlet id<MWPhotoBrowserDelegate> delegate;
 @property (nonatomic) BOOL zoomPhotosToFill;
 @property (nonatomic) BOOL displayNavArrows;
@@ -65,6 +75,10 @@
 // Icon should be located in the app's main bundle
 @property (nonatomic, strong) NSString *customImageSelectedIconName;
 @property (nonatomic, strong) NSString *customImageSelectedSmallIconName;
+@property (readonly) AVPlayer *player;
+@property CMTime currentTime;
+@property (readonly) CMTime duration;
+@property float rate;
 
 // Init
 - (id)initWithPhotos:(NSArray *)photosArray;

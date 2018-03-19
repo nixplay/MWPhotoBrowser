@@ -39,16 +39,16 @@
 
 @interface MWZoomingScrollView : UIScrollView <MWZoomingScrollViewProtocol, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
 @protected
-    AVPlayer *player;
-    AVPlayerItem *playerItem;
-    AVPlayerLayer *playerLayer;
-    NSTimer *playbackTimeCheckerTimer;
-    CGFloat videoPlaybackPosition;
-    UIView *videoPlayer;
-    UIView *videoLayer;
-    NSString *tempVideoPath;
-    AVAsset *asset;
-    BOOL isPlaying;
+//    AVPlayer *player;
+//    AVPlayerItem *playerItem;
+//    AVPlayerLayer *playerLayer;
+//    NSTimer *playbackTimeCheckerTimer;
+//    CGFloat videoPlaybackPosition;
+//    UIView *videoPlayer;
+//    UIView *videoLayer;
+//    NSString *tempVideoPath;
+//    AVAsset *asset;
+//    BOOL isPlaying;
 
 }
 
@@ -57,17 +57,17 @@
 @property (nonatomic, weak) MWCaptionView *captionView;
 @property (nonatomic, weak) UIButton *selectedButton;
 @property (nonatomic, weak) UIButton *playButton;
-@property (nonatomic , strong) AVPlayer *player;
-@property (nonatomic , strong) AVPlayerItem *playerItem;
-@property (nonatomic , strong) AVPlayerLayer *playerLayer;
-@property (nonatomic , strong) NSTimer *playbackTimeCheckerTimer;
-@property (assign, nonatomic) CGFloat videoPlaybackPosition;
-@property (nonatomic , strong) UIView *videoPlayer;
-@property (nonatomic , strong) UIView *videoLayer;
-@property (nonatomic , strong) NSString *tempVideoPath;
-@property (nonatomic , strong) AVAsset *asset;
-@property (assign, nonatomic) BOOL isPlaying;
-@property (assign, nonatomic) BOOL isReadyToPlay;
+//@property (nonatomic , strong) AVPlayer *player;
+//@property (nonatomic , strong) AVPlayerItem *playerItem;
+//@property (nonatomic , strong) AVPlayerLayer *playerLayer;
+//@property (nonatomic , strong) NSTimer *playbackTimeCheckerTimer;
+//@property (assign, nonatomic) CGFloat videoPlaybackPosition;
+//@property (nonatomic , strong) UIView *videoPlayer;
+//@property (nonatomic , strong) UIView *videoLayer;
+//@property (nonatomic , strong) NSString *tempVideoPath;
+//@property (nonatomic , strong) AVAsset *asset;
+//@property (assign, nonatomic) BOOL isPlaying;
+//@property (assign, nonatomic) BOOL isReadyToPlay;
 
 
 

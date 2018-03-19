@@ -16,12 +16,13 @@
 #import "AVPlayerCacheSupport/AVPlayerItem+MCCacheSupport.h"
 #import "ViewUtils.h"
 // Private methods and properties
+static int AAPLPlayerViewControllerKVOContext = 0;
+
 @interface MWZoomingScrollView () {
 
     MWPhotoBrowser __weak *_photoBrowser;
     MWTapDetectingView *_tapView; // for background taps
     MWTapDetectingImageView *_photoImageView;
-
     UILabel *_label;
     UIImageView *_loadingError;
     UITapGestureRecognizer * _tap;
@@ -31,17 +32,17 @@
 @end
 
 @implementation MWZoomingScrollView
-@synthesize player = _player;
-@synthesize playerItem = _playerItem;
-@synthesize playerLayer = _playerLayer;
-@synthesize playbackTimeCheckerTimer = _playbackTimeCheckerTimer;
-@synthesize videoPlaybackPosition = _videoPlaybackPosition;
-@synthesize videoPlayer = _videoPlayer;
-@synthesize videoLayer = _videoLayer;
-@synthesize tempVideoPath = _tempVideoPath;
-@synthesize asset = _asset;
-@synthesize isPlaying = _isPlaying;
-@synthesize playButton = _playButton;
+//@synthesize player = _player;
+//@synthesize playerItem = _playerItem;
+//@synthesize playerLayer = _playerLayer;
+//@synthesize playbackTimeCheckerTimer = _playbackTimeCheckerTimer;
+//@synthesize videoPlaybackPosition = _videoPlaybackPosition;
+//@synthesize videoPlayer = _videoPlayer;
+//@synthesize videoLayer = _videoLayer;
+//@synthesize tempVideoPath = _tempVideoPath;
+//@synthesize asset = _asset;
+//@synthesize isPlaying = _isPlaying;
+//@synthesize playButton = _playButton;
 @synthesize loadingIndicator = _loadingIndicator;
 - (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser {
     if ((self = [super init])) {
@@ -98,7 +99,8 @@
                                                  selector:@selector(setProgressFromNotification:)
                                                      name:MWPHOTO_PROGRESS_NOTIFICATION
                                                    object:nil];
-
+//        [self addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:&AAPLPlayerViewControllerKVOContext];
+//        [self addObserver:self forKeyPath:@"player.currentItem.status" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial context:&AAPLPlayerViewControllerKVOContext];
         // Setup
         self.backgroundColor = [UIColor blackColor];
         self.delegate = self;
@@ -106,7 +108,8 @@
         self.showsVerticalScrollIndicator = NO;
         self.decelerationRate = UIScrollViewDecelerationRateFast;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        self.isReadyToPlay = NO;
+//        self.isReadyToPlay = NO;
+//        _observingKeyPath = [NSMutableArray array];
     }
     return self;
 }
@@ -117,35 +120,42 @@
         if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
             [_photo cancelAnyLoading];
         }
-        [self stopPlaybackTimeChecker];
-        _isPlaying = NO;
-        [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
-        [_player seekToTime:CMTimeMake(0, 1)];
-        [_player pause];
-        [_player replaceCurrentItemWithPlayerItem:nil];
-        [_asset cancelLoading];
-        _asset = nil;
-        _player = nil;
-        _playerLayer = nil;
-        _videoLayer = nil;
-        _videoPlayer = nil;
+//        [self stopPlaybackTimeChecker];
+//        _isPlaying = NO;
+//        [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
+//
+//        [_player seekToTime:CMTimeMake(0, 1)];
+//        [_player pause];
+//        [_player replaceCurrentItemWithPlayerItem:nil];
+//        [_asset cancelLoading];
+//        _asset = nil;
+//        _player = nil;
+//        _playerLayer = nil;
+//        _videoLayer = nil;
+//        _videoPlayer = nil;
+//        if(_currentVideoLoadingIndicator){
+//            [_currentVideoLoadingIndicator removeFromSuperview];
+//            _currentVideoLoadingIndicator = nil;
+//        }
 
 
     }
 }
 - (void)dealloc {
-    [self stopPlaybackTimeChecker];
+//    [self stopPlaybackTimeChecker];
     if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
         [_photo cancelAnyLoading];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self  name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
+//    [self removeObserver:self forKeyPath:@"player.rate" context:&AAPLPlayerViewControllerKVOContext];
+//    [self removeObserver:self forKeyPath:@"player.currentItem.status" context:&AAPLPlayerViewControllerKVOContext];
 }
 
 - (void)prepareForReuse {
-    [self stopPlaybackTimeChecker];
+//    [self stopPlaybackTimeChecker];
     [self hideImageFailure];
-    [_asset cancelLoading];
+//    [_asset cancelLoading];
     if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
         [_photo cancelAnyLoading];
     }
@@ -156,6 +166,10 @@
     _photoImageView.hidden = NO;
     _photoImageView.image = nil;
     _index = NSUIntegerMax;
+//    if(_currentVideoLoadingIndicator){
+//        [_currentVideoLoadingIndicator removeFromSuperview];
+//        _currentVideoLoadingIndicator = nil;
+//    }
 }
 
 - (BOOL)displayingVideo {
@@ -164,6 +178,54 @@
 
 - (void)setImageHidden:(BOOL)hidden {
     _photoImageView.hidden = hidden;
+}
+
+//- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+//
+//    if (context != &AAPLPlayerViewControllerKVOContext) {
+//        // KVO isn't for us.
+//        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+//        return;
+//    }
+//    if ([keyPath isEqualToString:@"player.rate"]) {
+//        // Update playPauseButton image
+//
+//        double newRate = [change[NSKeyValueChangeNewKey] doubleValue];
+//        if (newRate == 1.0) {
+//            _playButton.hidden = YES;
+//            if(_currentVideoLoadingIndicator){
+//                [_currentVideoLoadingIndicator removeFromSuperview];
+//                _currentVideoLoadingIndicator = nil;
+//            }
+//        }
+//
+//    } else if ([keyPath isEqualToString:@"player.currentItem.status"]) {
+//        // Display an error if status becomes Failed
+//
+//        // Handle NSNull value for NSKeyValueChangeNewKey, i.e. when player.currentItem is nil
+//        NSNumber *newStatusAsNumber = change[NSKeyValueChangeNewKey];
+//        AVPlayerItemStatus newStatus = [newStatusAsNumber isKindOfClass:[NSNumber class]] ? newStatusAsNumber.integerValue : AVPlayerItemStatusUnknown;
+//
+//        if (newStatus == AVPlayerItemStatusFailed) {
+//            [self handleErrorWithMessage:self.player.currentItem.error.localizedDescription error:self.player.currentItem.error];
+//        }
+//
+//    } else {
+//        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+//    }
+//}
+
+- (void)handleErrorWithMessage:(NSString *)message error:(NSError *)error {
+    NSLog(@"Error occurred with message: %@, error: %@.", message, error);
+    
+    NSString *alertTitle = NSLocalizedString(@"alert.error.title", @"Alert title for errors");
+    NSString *defaultAlertMessage = NSLocalizedString(@"error.default.description", @"Default error message when no NSError provided");
+    UIAlertController *controller = [UIAlertController alertControllerWithTitle:alertTitle message:message ?: defaultAlertMessage  preferredStyle:UIAlertControllerStyleAlert];
+    
+    NSString *alertActionTitle = NSLocalizedString(@"alert.error.actions.OK", @"OK on error alert");
+    UIAlertAction *action = [UIAlertAction actionWithTitle:alertActionTitle style:UIAlertActionStyleDefault handler:nil];
+    [controller addAction:action];
+    
 }
 
 #pragma mark - Image
@@ -300,22 +362,22 @@
         else  if([dict objectForKey:@"video"] != nil){
 
             id <MWPhoto> photoWithProgress = [dict objectForKey:@"video"];
-            if (photoWithProgress == _photo) {
-                self.loadingIndicator.center = CGPointMake(CGRectGetMidX(_photoImageView.frame), CGRectGetMidY(_photoImageView.frame));
-                _label.center = self.loadingIndicator.center;
-                _label.top = self.loadingIndicator.bottom + 5;
-
-                float progress = [[dict valueForKey:@"progress"] floatValue];
-                if(progress < 1 ){
-                    self.loadingIndicator.hidden = NO;
-                    _label.hidden = NO;
-                    self.loadingIndicator.progress = MAX(MIN(1, progress), 0);
-                    _playButton.hidden = YES;
-                }else{
-                    [self hideLoadingIndicator];
-                    _playButton.hidden = NO;
-                }
-            }
+//            if (photoWithProgress == _photo) {
+//                self.loadingIndicator.center = CGPointMake(CGRectGetMidX(_photoImageView.frame), CGRectGetMidY(_photoImageView.frame));
+//                _label.center = self.loadingIndicator.center;
+//                _label.top = self.loadingIndicator.bottom + 5;
+//
+//                float progress = [[dict valueForKey:@"progress"] floatValue];
+//                if(progress < 1 ){
+//                    self.loadingIndicator.hidden = NO;
+//                    _label.hidden = NO;
+//                    self.loadingIndicator.progress = MAX(MIN(1, progress), 0);
+//                    _playButton.hidden = YES;
+//                }else{
+//                    [self hideLoadingIndicator];
+//                    _playButton.hidden = NO;
+//                }
+//            }
         }
     });
 }
@@ -324,7 +386,7 @@
     self.loadingIndicator.hidden = YES;
     _label.hidden = YES;
     if([self.photo isVideo]){
-        self.playButton.hidden = NO;
+//        self.playButton.hidden = NO;
     }
 }
 
@@ -478,14 +540,14 @@
 
 -(void) setFrameToCenter:(CGRect)frame{
     if(self.photo.isVideo){
-        if(self.videoPlayer != nil && self.videoLayer != nil && self.playerLayer != nil){
-            self.videoLayer.frame = frame;
-            if(self.playerLayer.superlayer != nil){
-                [self.playerLayer removeFromSuperlayer];
-            }
-            self.playerLayer.frame = CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
-            [self.videoLayer.layer addSublayer:self.playerLayer];
-        }
+//        if(self.videoPlayer != nil && self.videoLayer != nil && self.playerLayer != nil){
+//            self.videoLayer.frame = frame;
+//            if(self.playerLayer.superlayer != nil){
+//                [self.playerLayer removeFromSuperlayer];
+//            }
+//            self.playerLayer.frame = CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
+//            [self.videoLayer.layer addSublayer:self.playerLayer];
+//        }
     }
 }
 
@@ -517,11 +579,11 @@
 
 - (void)handleSingleTap:(CGPoint)touchPoint {
 
-    if(self.isPlaying){
-        [self onVideoTapped];
-    }else{
+//    if(self.isPlaying){
+//        [self onVideoTapped];
+//    }else{
         [_photoBrowser performSelector:@selector(toggleControls) withObject:nil afterDelay:0.2];
-    }
+//    }
 }
 
 - (void)handleDoubleTap:(CGPoint)touchPoint {
@@ -585,207 +647,230 @@
     [self handleDoubleTap:CGPointMake(touchX, touchY)];
 }
 
-#pragma mark - Video
--(void) setAsset:(AVAsset *)asset{
-    _asset = asset;
-}
--(void) setPlayButton:(UIButton*)button{
-    _playButton = button;
-    [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-}
-
--(void) setupVideoPreviewAsset:(AVAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
-    if(self.photo.isVideo){
-        if(avurlAsset != nil){
-            _asset = avurlAsset;
-        }
-        AVPlayerItem *item =  ([_asset isKindOfClass: [AVURLAsset class]]) ?  [self createPlayerItemWithUrl:[((AVURLAsset*)_asset).URL absoluteString] ] : [AVPlayerItem playerItemWithAsset:_asset] ;
-
-        AVPlayer *player = [AVPlayer playerWithPlayerItem:item];
-        self.player  = player;
-        self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
-        self.playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
-        self.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
-
-        self.videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
-        self.videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
-        [self.playerLayer setFrame:CGRectZero];
-        [self.videoPlayer setBackgroundColor:[UIColor clearColor]];
-        [self addSubview:self.videoPlayer];
-
-        [self insertSubview:self.videoPlayer atIndex:[[self subviews] indexOfObject:_photoImageView]];
-        [self.videoLayer.layer addSublayer:self.playerLayer];
-
-        self.videoLayer.tag = 1;
-
-        self.videoPlaybackPosition = 0;
-
-        [self seekVideoToPos:0];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(playerItemDidReachEnd:)
-                                                     name:AVPlayerItemDidPlayToEndTimeNotification
-                                                   object:item];
-         self.playButton.hidden = NO;
-    }
-
-}
-
-- (AVPlayerItem *)createPlayerItemWithUrl:(NSString *)url {
-    //创建playeritem
-    NSError * error;
-    AVPlayerItem *playerItem = [AVPlayerItem mc_playerItemWithRemoteURL:[NSURL URLWithString:url] error:&error];
-    if(!error){
-        return playerItem;
-    }else{
-        return  [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
-    }
-    return nil;
-}
-
--(void) playerItemDidReachEnd:(NSNotification *)notification {
-
-    NSLog(@"IT REACHED THE END");
-    [self.player pause];
-    [self stopPlaybackTimeChecker];
-    [self playButton].hidden = NO;
-    self.videoPlayer.hidden = YES;
-    _photoImageView.hidden = NO;
-    self.isPlaying = NO;
-    [self seekVideoToPos:0];
-
-}
-- (void) tapOnVideoLayer:(UITapGestureRecognizer *)tap
-{
-    [self onVideoTapped];
-}
-
--(void) onPlayButtonPressed:(id) sender{
-    [self onVideoTapped];
-}
-- (void) onVideoTapped{
-
-
-    if(self.photo.isVideo){
-        if (self.isPlaying) {
-
-            [self.player pause];
-            [self stopPlaybackTimeChecker];
-            [self playButton].hidden = NO;
-            _photoImageView.hidden = NO;
-            _isPlaying = NO;
-        }else {
-            typeof(self) __weak weakSelf = self;
-            if(self.videoPlayer == nil && self.videoLayer == nil && self.player == nil){
-
-                [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
-//                    if(url)
-                    {
-                        if(!avAsset && url){
-                            weakSelf.asset = [AVURLAsset assetWithURL:url];
-                        } else if (avAsset){
-                            weakSelf.asset = avAsset;
-                        }
-                        typeof(self) strongSelf = weakSelf;
-
-                        dispatch_async(dispatch_get_main_queue(), ^{
-
-                            [strongSelf setupVideoPreviewAsset: strongSelf.asset photoImageViewFrame:strongSelf.frame];
-                            [strongSelf onVideoTapped];
-                        });
-                    }
-                }];
-
-            }else{
-                _isPlaying = YES;
-                self.videoPlayer.hidden = NO;
-                if(self.videoLayer.superview == nil){
-                    [self.videoPlayer addSubview:self.videoLayer];
-                }
-                [self playButton].hidden = YES;
-
-
-                [self startPlaybackTimeChecker];
-                [self.player play];
-                _photoImageView.hidden = YES;
-            }
-        }
-
-
-    }
-}
-- (void)startPlaybackTimeChecker
-{
-    [self stopPlaybackTimeChecker];
-
-    _playbackTimeCheckerTimer = [NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(onPlaybackTimeCheckerTimer) userInfo:nil repeats:YES];
-}
-
-- (void)stopPlaybackTimeChecker
-{
-    if (_playbackTimeCheckerTimer) {
-        [_playbackTimeCheckerTimer invalidate];
-        _playbackTimeCheckerTimer = nil;
-    }
-}
-
-
-#pragma mark - PlaybackTimeCheckerTimer
-
-- (void)onPlaybackTimeCheckerTimer
-{
-    CMTime curTime = [_player currentTime];
-    Float64 seconds = CMTimeGetSeconds(curTime);
-    if (seconds < 0){
-        seconds = 0; // this happens! dont know why.
-    }
-    _videoPlaybackPosition = seconds;
-
-
-
-    if (_videoPlaybackPosition >= CMTimeGetSeconds([_asset duration])) {
-        [_playButton setHidden:NO];
-        [_player pause];
-        [self seekVideoToPos: 0];
-    }
-}
-
-- (void)seekVideoToPos:(CGFloat)pos
-{
-    _videoPlaybackPosition = pos;
-    CMTime time = CMTimeMakeWithSeconds(_videoPlaybackPosition, self.asset.duration.timescale);
-    NSLog(@"seekVideoToPos time:%.2f", CMTimeGetSeconds(time));
-    [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
-}
-
-- (void)resetPlayer
-{
-    if(self.isReadyToPlay){
-        self.isReadyToPlay = NO;
-        [self.player play];
-    }else{
-        if(self.player != nil){
-            [self.player pause];
-            CMTime time = CMTimeMakeWithSeconds(0, self.asset.duration.timescale);
-            [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
-        }
-
-    }
-}
-
-#pragma mark - getter
-- (AVPlayer *)player {
-    if (_player == nil) {
-        _player = [[AVPlayer alloc] init];
-    }
-    return _player;
-}
-
-- (AVPlayerLayer *)playerLayer {
-    if (_playerLayer == nil) {
-        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-    }
-    return _playerLayer;
-}
+//#pragma mark - Video
+//-(void) setAsset:(AVAsset *)asset{
+//    _asset = asset;
+//}
+//-(void) setPlayButton:(UIButton*)button{
+//    _playButton = button;
+//    [_playButton addTarget:self action:@selector(onPlayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+//}
+//
+//-(void) setupVideoPreviewAsset:(AVAsset*)avurlAsset photoImageViewFrame:(CGRect)photoImageViewFrame{
+//    if(self.photo.isVideo){
+//        if(avurlAsset != nil){
+//            _asset = avurlAsset;
+//        }
+//        AVPlayerItem *item =  ([_asset isKindOfClass: [AVURLAsset class]]) ?  [self createPlayerItemWithUrl:[((AVURLAsset*)_asset).URL absoluteString] ] : [AVPlayerItem playerItemWithAsset:_asset] ;
+//
+//        AVPlayer *player = [AVPlayer playerWithPlayerItem:item];
+//        self.player  = player;
+//        self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+//        self.playerLayer.contentsGravity = AVLayerVideoGravityResizeAspect;
+//        self.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+//
+//        self.videoLayer = [[UIView alloc] initWithFrame:CGRectZero];
+//        self.videoPlayer = [[UIView alloc] initWithFrame:CGRectZero];
+//        [self.playerLayer setFrame:CGRectZero];
+//        [self.videoPlayer setBackgroundColor:[UIColor clearColor]];
+//        [self addSubview:self.videoPlayer];
+//
+//        [self insertSubview:self.videoPlayer atIndex:[[self subviews] indexOfObject:_photoImageView]];
+//        [self.videoLayer.layer addSublayer:self.playerLayer];
+//
+//        self.videoLayer.tag = 1;
+//
+//        self.videoPlaybackPosition = 0;
+//
+//        [self seekVideoToPos:0];
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(playerItemDidReachEnd:)
+//                                                     name:AVPlayerItemDidPlayToEndTimeNotification
+//                                                   object:item];
+//
+//         self.playButton.hidden = NO;
+//    }
+//
+//}
+//
+//-(void) addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options context:(void *)context{
+//    if(![_observingKeyPath containsObject:keyPath]){
+//        [super addObserver:observer forKeyPath:keyPath options:options context:context];
+//        [_observingKeyPath addObject:keyPath];
+//    }
+//}
+//-(void) removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context{
+//    if([_observingKeyPath containsObject:keyPath]){
+//        [super removeObserver:self forKeyPath:keyPath context:&AAPLPlayerViewControllerKVOContext];
+//        [_observingKeyPath removeObject:keyPath];
+//    }
+//}
+//- (AVPlayerItem *)createPlayerItemWithUrl:(NSString *)url {
+//    //创建playeritem
+//    NSError * error;
+//    AVPlayerItem *playerItem = [AVPlayerItem mc_playerItemWithRemoteURL:[NSURL URLWithString:url] error:&error];
+//    if(!error){
+//        return playerItem;
+//    }else{
+//        return  [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
+//    }
+//    return nil;
+//}
+//
+//-(void) playerItemDidReachEnd:(NSNotification *)notification {
+//
+//    NSLog(@"IT REACHED THE END");
+//    [self.player pause];
+//    [self stopPlaybackTimeChecker];
+//    [self playButton].hidden = NO;
+//    self.videoPlayer.hidden = YES;
+//    _photoImageView.hidden = NO;
+//    self.isPlaying = NO;
+//    [self seekVideoToPos:0];
+//
+//}
+//- (void) tapOnVideoLayer:(UITapGestureRecognizer *)tap
+//{
+//    [self onVideoTapped];
+//}
+//
+//-(void) onPlayButtonPressed:(id) sender{
+//    [self onVideoTapped];
+//}
+//- (void) onVideoTapped{
+//
+//
+//    if(self.photo.isVideo){
+//        if (self.isPlaying) {
+//
+//            [self.player pause];
+//            [self stopPlaybackTimeChecker];
+//            [self playButton].hidden = NO;
+//            _photoImageView.hidden = NO;
+//            _isPlaying = NO;
+//            if(_currentVideoLoadingIndicator){
+//                [_currentVideoLoadingIndicator removeFromSuperview];
+//                _currentVideoLoadingIndicator = nil;
+//            }
+//        }else {
+//            typeof(self) __weak weakSelf = self;
+//            if(!self.asset){
+//                _currentVideoLoadingIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectZero];
+//                [_currentVideoLoadingIndicator sizeToFit];
+//                [_currentVideoLoadingIndicator startAnimating];
+//                _currentVideoLoadingIndicator.center = CGPointMake(CGRectGetMidX(_photoImageView.frame), CGRectGetMidY(_photoImageView.frame));
+//                [self addSubview:_currentVideoLoadingIndicator];
+//                [self.photo getVideoURL:^(NSURL *url, AVAsset * _Nullable avAsset) {
+////                    if(url)
+//                    {
+//                        if(!avAsset && url){
+//                            weakSelf.asset = [AVURLAsset assetWithURL:url];
+//                        } else if (avAsset){
+//                            weakSelf.asset = avAsset;
+//                        }
+//                        typeof(self) strongSelf = weakSelf;
+//
+//                        dispatch_async(dispatch_get_main_queue(), ^{
+//
+//                            [strongSelf setupVideoPreviewAsset: strongSelf.asset photoImageViewFrame:strongSelf.frame];
+//                            [strongSelf onVideoTapped];
+//                        });
+//                    }
+//                }];
+//
+//            }else{
+//                _isPlaying = YES;
+//                self.videoPlayer.hidden = NO;
+//                if(self.videoLayer.superview == nil){
+//                    [self.videoPlayer addSubview:self.videoLayer];
+//                }
+//                [self playButton].hidden = YES;
+//
+//
+//                [self startPlaybackTimeChecker];
+//                [self.player play];
+//                _photoImageView.hidden = YES;
+//
+//            }
+//        }
+//
+//
+//    }
+//}
+//- (void)startPlaybackTimeChecker
+//{
+//    [self stopPlaybackTimeChecker];
+//
+//    _playbackTimeCheckerTimer = [NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(onPlaybackTimeCheckerTimer) userInfo:nil repeats:YES];
+//}
+//
+//- (void)stopPlaybackTimeChecker
+//{
+//    if (_playbackTimeCheckerTimer) {
+//        [_playbackTimeCheckerTimer invalidate];
+//        _playbackTimeCheckerTimer = nil;
+//    }
+//}
+//
+//
+//#pragma mark - PlaybackTimeCheckerTimer
+//
+//- (void)onPlaybackTimeCheckerTimer
+//{
+//    CMTime curTime = [_player currentTime];
+//    Float64 seconds = CMTimeGetSeconds(curTime);
+//    if (seconds < 0){
+//        seconds = 0; // this happens! dont know why.
+//    }
+//    _videoPlaybackPosition = seconds;
+//
+//
+//
+//    if (_videoPlaybackPosition >= CMTimeGetSeconds([_asset duration])) {
+//        [_playButton setHidden:NO];
+//        [_player pause];
+//        [self seekVideoToPos: 0];
+//    }
+//}
+//
+//- (void)seekVideoToPos:(CGFloat)pos
+//{
+//
+//    _videoPlaybackPosition = pos;
+//    CMTime time = CMTimeMakeWithSeconds(_videoPlaybackPosition, self.asset.duration.timescale);
+//    NSLog(@"seekVideoToPos time:%.2f", CMTimeGetSeconds(time));
+//    [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
+//}
+//
+//- (void)resetPlayer
+//{
+//    if(self.isReadyToPlay){
+//        self.isReadyToPlay = NO;
+//        [self.player play];
+//    }else{
+//        if(self.player != nil){
+//            [self.player pause];
+//            CMTime time = CMTimeMakeWithSeconds(0, self.asset.duration.timescale);
+//            [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
+//        }
+//
+//    }
+//}
+//
+//#pragma mark - getter
+//- (AVPlayer *)player {
+//    if (_player == nil) {
+//        _player = [[AVPlayer alloc] init];
+//    }
+//    return _player;
+//}
+//
+//- (AVPlayerLayer *)playerLayer {
+//    if (_playerLayer == nil) {
+//        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+//    }
+//    return _playerLayer;
+//}
 
 
 - (NSString*) labelText{
