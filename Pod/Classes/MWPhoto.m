@@ -20,6 +20,7 @@
     PHImageRequestID _assetRequestID;
     PHImageRequestID _assetVideoRequestID;
     AVAssetExportSession *exporter;
+    int _retry;
     
 }
 
@@ -103,11 +104,13 @@
 }
 
 - (void)setup {
+    _retry = 0;
     _assetRequestID = PHInvalidImageRequestID;
     _assetVideoRequestID = PHInvalidImageRequestID;
 }
 
 - (void)dealloc {
+    _retry = 0;
     [self cancelAnyLoading];
 }
 
@@ -325,7 +328,7 @@ static dispatch_time_t getDispatchTimeFromSeconds(float seconds) {
         [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
     };
     _assetRequestID = [imageManager requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:options resultHandler:^(UIImage *result, NSDictionary *info) {
-        if(result){
+        if(result || _retry > 0){
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                     self.underlyingImage = result;
@@ -337,7 +340,10 @@ static dispatch_time_t getDispatchTimeFromSeconds(float seconds) {
         }else{
             NSLog(@"!!!! MWPhoto _performLoadUnderlyingImageAndNotifyWithAsset result == %@ %@",result,info);
             NSLog(@"!!!! MWPhoto retry performLoadUnderlyingImageAndNotify");
-            [self performLoadUnderlyingImageAndNotify];
+            if(_retry < 10){
+                [self performLoadUnderlyingImageAndNotify];
+                _retry++;
+            }
         }
     }];
     

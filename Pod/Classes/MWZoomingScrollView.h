@@ -25,6 +25,7 @@
 - (void)prepareForReuse;
 - (BOOL)displayingVideo;
 - (void)setImageHidden:(BOOL)hidden;
+- (void)setPlayButton:(UIButton*)button;
 - (void)displaySubView:(CGRect)photoImageViewFrame;
 - (void)onVideoTapped;
 - (void)startPlaybackTimeChecker;
@@ -32,6 +33,8 @@
 - (void)seekVideoToPos:(CGFloat)pos;
 - (void)resetPlayer;
 - (void)playerItemDidReachEnd:(NSNotification *)notification;
+- (NSString*) labelText;
+
 @end
 
 @interface MWZoomingScrollView : UIScrollView <MWZoomingScrollViewProtocol, UIScrollViewDelegate, MWTapDetectingImageViewDelegate, MWTapDetectingViewDelegate> {
