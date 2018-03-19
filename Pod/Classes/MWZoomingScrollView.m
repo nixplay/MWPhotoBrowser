@@ -13,7 +13,7 @@
 #import "MWPhoto.h"
 #import "MWPhotoBrowserPrivate.h"
 #import "UIImage+MWPhotoBrowser.h"
-
+#import "AVPlayerCacheSupport/AVPlayerItem+MCCacheSupport.h"
 // Private methods and properties
 @interface MWZoomingScrollView () {
     
@@ -592,23 +592,14 @@
 
 - (AVPlayerItem *)createPlayerItemWithUrl:(NSString *)url {
     //创建playeritem
-    AVPlayerItem *playerItem = nil;
-    if ([NSString httpURL:url]) {
-        NSString *fileUrl = [CrFileHandle file:[NSString fileNameFromURL:url] existsAtCahcesFolder:self.resourceLoader.cachesFolder];
-        if (fileUrl != nil) {   //有缓存
-            playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:fileUrl]];
-        } else {                //无缓存
-            NSURLComponents *components = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:url] resolvingAgainstBaseURL:NO];
-            self.resourceLoader.scheme = components.scheme;
-            components.scheme = @"streaming";
-            AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:components.URL options:nil];
-            [urlAsset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_queue_create("ResourceLoaderQueue", DISPATCH_QUEUE_SERIAL)];
-            playerItem = [AVPlayerItem playerItemWithAsset:urlAsset];
-        }
-    } else {
-        playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:url]];
+    NSError * error;
+    AVPlayerItem *playerItem = [AVPlayerItem mc_playerItemWithRemoteURL:[NSURL URLWithString:url] error:&error];
+    if(!error){
+        return playerItem;
+    }else{
+        return  [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
     }
-    return playerItem;
+    return nil;
 }
     
 -(void) playerItemDidReachEnd:(NSNotification *)notification {
@@ -764,13 +755,6 @@
     return _playerLayer;
 }
 
-- (CrResourceLoader *)resourceLoader {
-    if (_resourceLoader == nil) {
-        _resourceLoader = [[CrResourceLoader alloc] init];
-        _resourceLoader.cachesFolder = @"MV";
-    }
-    return _resourceLoader;
-}
 
 @end
 
